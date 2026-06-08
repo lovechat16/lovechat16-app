@@ -252,3 +252,221 @@ details.faq-item p {
   line-height: 1.8;
   margin-top: 8px;
 }
+
+/* ── 18. ボディ背景に奥行きを加える ───────────────────────────── */
+body::before {
+  content: '';
+  position: fixed; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 700px 500px at 0% 0%,   rgba(160,107,255,.13) 0%, transparent 65%),
+    radial-gradient(ellipse 600px 450px at 100% 100%, rgba(255,93,143,.09) 0%, transparent 65%),
+    radial-gradient(ellipse 400px 300px at 50% 50%,  rgba(124,58,237,.05) 0%, transparent 65%);
+  z-index: 0;
+}
+.wrap { position: relative; z-index: 1; }
+
+/* ── 19. イントロキャラを 60px → 80px に拡大・hover エフェクト ─── */
+.introChars {
+  gap: 5px !important;
+  margin: 0 0 26px !important;
+  align-items: flex-end !important;
+}
+.introChars .cv {
+  width: 80px !important;
+  height: 80px !important;
+  border-radius: 16px;
+  overflow: hidden;
+  display: inline-block !important;
+  vertical-align: bottom;
+  transition: transform .22s ease, filter .22s ease;
+}
+.introChars .cv:hover {
+  transform: translateY(-5px) scale(1.07);
+  filter: drop-shadow(0 8px 16px rgba(255,93,143,.55));
+}
+.introChars .cv img {
+  width: 80px !important;
+  height: 80px !important;
+  border-radius: 16px;
+  object-fit: cover !important;
+}
+.introChars svg {
+  width: 80px !important;
+  height: 80px !important;
+}
+
+/* ── 20. ヒーローマスコットを 150px → 200px に大型化 ─────────── */
+.heroMascot {
+  width: 200px !important;
+  height: 200px !important;
+  margin: 0 auto 14px !important;
+  filter: drop-shadow(0 10px 24px rgba(0,0,0,.4)) !important;
+  animation: pop .5s ease, mascot-breathe 5s ease-in-out 1s infinite !important;
+}
+@keyframes mascot-breathe {
+  0%,100% { transform: translateY(0)   scale(1.00); }
+  50%      { transform: translateY(-6px) scale(1.01); }
+}
+.heroMascot .cv {
+  width: 200px !important;
+  height: 200px !important;
+}
+.heroMascot .cv img {
+  width: 200px !important;
+  height: 200px !important;
+  object-fit: contain !important;
+  border-radius: 28px !important;
+}
+.heroMascot .cv svg {
+  width: 200px !important;
+  height: 200px !important; /* fix: autoだと132:156比で236pxになり下がはみ出る */
+}
+
+/* fix: PNG差し替え前にSVGが一瞬見えるフラッシュを防ぐ */
+.introChars .cv svg,
+.heroMascot .cv svg {
+  opacity: 0;
+  animation: svg-fallback-show 0s linear 0.6s forwards;
+}
+@keyframes svg-fallback-show {
+  to { opacity: 1; }
+}
+
+/* ── 21. ヒーローカード：タイプカラーの強力なグロー ──────────── */
+.hero {
+  box-shadow:
+    0 12px 64px rgba(0,0,0,.52),
+    0 0 100px color-mix(in srgb, var(--type-color,var(--accent)) 22%, transparent),
+    inset 0 1px 0 rgba(255,255,255,.08) !important;
+  border-width: 1.5px !important;
+}
+
+/* ── 22. タイプ名をグラデーションテキストで際立たせる ─────────── */
+/* ※ .rname に pseudo-element はないため安全 */
+.rname {
+  font-size: 38px !important;
+  letter-spacing: -0.02em !important;
+  line-height: 1.2 !important;
+  margin: 6px 0 14px !important;
+  background: linear-gradient(
+    130deg,
+    #ffffff 0%,
+    color-mix(in srgb, var(--type-color, var(--accent)) 55%, #ffffff) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ── 23. シェア画像ボタンをプレミアムCTAに格上げ ─────────────── */
+.cta .btn:first-child {
+  background: linear-gradient(
+    118deg,
+    color-mix(in srgb, var(--type-color, var(--accent)) 75%, #ff3a70),
+    color-mix(in srgb, var(--accent2) 80%, #7c3aed)
+  ) !important;
+  box-shadow:
+    0 12px 44px color-mix(in srgb, var(--type-color, var(--accent)) 48%, transparent),
+    0 0 0 1.5px color-mix(in srgb, var(--type-color, var(--accent)) 22%, transparent) !important;
+  font-size: 18px !important;
+  padding: 21px 24px !important;
+  letter-spacing: 0.015em;
+}
+
+/* ── 24. adCard のプレースホルダー非表示（URL設定後に削除） ───── */
+/* chars.js の AFFILIATES[0].url を実URLに差し替えたらこの行を削除する */
+.adcard { display: none !important; }
+
+/* ── 26. 全3ページ共通：バッジ・btn-hint 強化 ────────────── */
+/* badge: 全ページ共通でグラデーション背景を適用 */
+.badge {
+  font-size: 11px !important;
+  letter-spacing: .16em !important;
+  font-weight: 700 !important;
+  background: linear-gradient(120deg, rgba(160,107,255,.18), rgba(255,93,143,.12)) !important;
+  border-color: rgba(160,107,255,.4) !important;
+}
+
+/* btn-hint: CTA上部の誘導テキスト（partner.html でも使用） */
+.btn-hint {
+  font-size: 11px;
+  text-align: center;
+  color: var(--muted);
+  margin-bottom: 8px;
+  letter-spacing: .04em;
+  opacity: .75;
+}
+
+/* lead: partner.html / aishou.html の 14px を 16px に統一（index.html は inline で 16px 済み） */
+.lead {
+  font-size: 16px !important;
+  font-weight: 500 !important;
+  letter-spacing: .01em !important;
+  line-height: 1.75 !important;
+}
+
+/* ── 27. aishou.html ×マーク グロー＆パルス演出 ─────────────── */
+.vs {
+  font-size: 28px !important;
+  font-weight: 900 !important;
+  color: var(--accent) !important;
+  text-shadow:
+    0 0 12px rgba(255,93,143,.8),
+    0 0 32px rgba(255,93,143,.45) !important;
+  animation: vs-pulse 2.4s ease-in-out infinite !important;
+  user-select: none;
+}
+@keyframes vs-pulse {
+  0%,100% { transform: scale(1);    opacity: 1; }
+  50%      { transform: scale(1.22); opacity: .85; }
+}
+
+/* partner.html introChars: 最後の1枚に "?" フィルター（相手はまだ未知） */
+#partnerChars .cv:last-child img {
+  filter: brightness(.55) blur(1.5px) saturate(.4);
+  transform: scale(.95);
+}
+#partnerChars .cv:last-child {
+  position: relative;
+}
+#partnerChars .cv:last-child::after {
+  content: "?";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: 900;
+  color: rgba(255,255,255,.75);
+  pointer-events: none;
+}
+
+/* ── 25. スマホ (480px 以下) 最適化 ─────────────────────────── */
+@media (max-width: 480px) {
+  .heroMascot,
+  .heroMascot .cv,
+  .heroMascot .cv img {
+    width: 172px !important;
+    height: 172px !important;
+  }
+  .rname {
+    font-size: 30px !important;
+  }
+  .rcatch {
+    font-size: 17px !important;
+  }
+  .introChars .cv,
+  .introChars .cv img {
+    width: 64px !important;
+    height: 64px !important;
+  }
+  .introChars svg {
+    width: 64px !important;
+    height: 64px !important;
+  }
+  .cta .btn:first-child {
+    font-size: 16px !important;
+    padding: 18px !important;
+  }
+}

@@ -20,6 +20,7 @@
 <link rel=”canonical” href=”https://lovechat16.github.io/lovechat16-app/partner.html”>
 <meta name="description" content="相手のメッセージ傾向から、相手の会話タイプと温度感を推定。送るべき返信・重い返信・次の一手がわかる。">
 <link rel="stylesheet" href="assets/lc16-result.css">
+<script src="assets/lc16-type-colors.js" defer></script>
 <style>
   :root{
     --bg1:#1a1130; --bg2:#2b1645; --card:#2a1c44; --card2:#34245a;
@@ -112,7 +113,14 @@
   <section id="intro" class="screen active">
     <div class="nav"><span class="badge">LOVECHAT 16 ｜ 相手診断</span><a href="index.html">自分の診断 →</a></div>
     <h1>気になる相手の<br><span class="hl">返信タイプ</span>を読み解く</h1>
-    <p class="lead">相手のLINE、読み解きます。</p>
+    <div class="introChars" style="display:flex;justify-content:center">
+      <div class="cv"><img src="assets/chars/あまぐま.png" alt="" loading="lazy"></div>
+      <div class="cv"><img src="assets/chars/アタッキュン.png" alt="" loading="lazy"></div>
+      <div class="cv"><img src="assets/chars/きまニャン.png" alt="" loading="lazy"></div>
+      <div class="cv"><img src="assets/chars/テンポッター.png" alt="" loading="lazy"></div>
+    </div>
+    <p class="lead">7問で相手の返信グセを判定。<br>どう接すれば刺さるかが見えてくる。</p>
+    <p class="btn-hint">▼ タップして診断スタート</p>
     <button class="btn" onclick="show('form')">相手のタイプを読む →</button>
     <button class="btn sub" style="margin-top:12px" onclick="show('paste')">📄 会話履歴から詳しく診断（端末内のみ）</button>
     <p class="note">※この診断は相手の人格を断定するものではありません。現在のメッセージ/DM上の会話傾向を整理するためのものです。</p>
