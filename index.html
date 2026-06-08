@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- プライバシー保護：connect-src 'none' でページからの外部送信を技術的に遮断（入力は端末外へ出ない） -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'">
+<title>ラブチャット16診断 ｜ 恋愛メッセージの会話タイプ診断</title>
+<!-- OGP / Twitterカード（URL共有時にキャラ画像＋コピーを表示）※公開時は og:image を絶対URL（https://ドメイン/assets/ogp.jpg）に置換 -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="ラブチャット16診断 ｜ あなたは、どの会話キャラ？">
+<meta property="og:description" content="恋愛メッセージの会話タイプを16キャラに診断。20の質問で相性・事故りやすいポイント・相性キャラがわかる。無料・約90秒。">
+<meta property="og:image" content="assets/ogp.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="ラブチャット16診断 ｜ あなたは、どの会話キャラ？">
+<meta name="twitter:description" content="恋愛メッセージの会話タイプを16キャラに診断。無料・約90秒。#ラブチャット16">
+<meta name="twitter:image" content="assets/ogp.jpg">
+<meta name="description" content="恋愛のメッセージ/DMの会話傾向を16タイプに分類。20の質問であなたの会話タイプ・相性・失速しやすいポイントと、相性キャラがわかる。">
+<link rel="stylesheet" href="assets/lc16-result.css">
+<script src="assets/lc16-type-colors.js" defer></script>
+<style>
+  :root{
+    --bg1:#1a1130; --bg2:#2b1645; --card:#2a1c44; --card2:#34245a;
+    --accent:#ff5d8f; --accent2:#a06bff; --text:#f4eeff; --muted:#b6a8d6;
+    --line:#473163; --ok:#5de0a8; --warn:#ffb86b;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;
+    background:linear-gradient(160deg,var(--bg1),var(--bg2));
+    color:var(--text); min-height:100vh; line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:560px;margin:0 auto;padding:24px 18px 64px}
+  .screen{display:none;animation:fade .35s ease}
+  .screen.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  /* ---- Intro ---- */
+  .badge{display:inline-block;font-size:12px;letter-spacing:.12em;color:var(--accent2);
+    border:1px solid var(--line);border-radius:999px;padding:6px 14px;margin-bottom:20px}
+  h1{font-size:30px;line-height:1.3;margin:0 0 14px;font-weight:800}
+  h1 .hl{background:linear-gradient(120deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .lead{color:var(--muted);font-size:15px;margin:0 0 28px}
+  .meta{display:flex;gap:10px;margin:0 0 28px;flex-wrap:wrap}
+  .chip{font-size:12px;color:var(--muted);background:rgba(255,255,255,.05);border:1px solid var(--line);
+    border-radius:8px;padding:6px 11px}
+  .btn{display:block;width:100%;border:0;cursor:pointer;font-weight:700;font-size:17px;
+    color:#fff;background:linear-gradient(120deg,var(--accent),var(--accent2));
+    padding:17px;border-radius:14px;transition:transform .12s,box-shadow .2s;
+    box-shadow:0 8px 24px rgba(255,93,143,.28)}
+  .btn:active{transform:scale(.98)}
+  .btn.sub{background:transparent;border:1px solid var(--line);color:var(--text);box-shadow:none;font-size:15px;font-weight:600}
+  .note{font-size:12px;color:var(--muted);margin-top:18px;text-align:center;line-height:1.6}
+
+  /* ---- Quiz ---- */
+  .progress{height:6px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden;margin-bottom:8px}
+  .progress > i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .3s}
+  .qcount{font-size:12px;color:var(--muted);text-align:right;margin-bottom:26px}
+  .qnum{font-size:13px;color:var(--accent2);font-weight:700;margin-bottom:10px}
+  .qtext{font-size:22px;font-weight:800;line-height:1.45;margin:0 0 26px;min-height:64px}
+  .opt{display:flex;align-items:center;gap:14px;width:100%;text-align:left;cursor:pointer;
+    background:var(--card);border:1.5px solid var(--line);color:var(--text);
+    border-radius:16px;padding:20px 18px;margin-bottom:14px;font-size:16px;font-weight:600;
+    transition:border-color .15s,background .15s,transform .1s}
+  .opt:hover{border-color:var(--accent2)}
+  .opt:active{transform:scale(.99)}
+  .opt.sel{border-color:var(--accent);background:var(--card2)}
+  .opt .mark{flex:0 0 26px;height:26px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:13px;color:transparent}
+  .opt.sel .mark{border-color:var(--accent);background:var(--accent);color:#fff}
+  .qnav{display:flex;justify-content:space-between;margin-top:8px}
+  .lnk{background:none;border:0;color:var(--muted);font-size:14px;cursor:pointer;padding:8px 4px}
+  .lnk:disabled{opacity:.3;cursor:default}
+
+  /* ---- Result ---- */
+  .rcode{font-size:13px;letter-spacing:.3em;color:var(--accent2);font-weight:700}
+  .rname{font-size:30px;font-weight:800;margin:6px 0 6px}
+  .rcatch{color:var(--muted);font-size:15px;margin:0 0 24px;font-style:italic}
+  .bars{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:22px}
+  .bar{margin-bottom:16px}
+  .bar:last-child{margin-bottom:0}
+  .bar .lbls{display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px}
+  .bar .lbls b{font-weight:800}
+  .bar .lbls .on{color:var(--accent)}
+  .bar .lbls .off{color:var(--muted)}
+  .track{height:9px;background:rgba(255,255,255,.07);border-radius:999px;position:relative;overflow:hidden}
+  .track > i{position:absolute;top:0;bottom:0;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:999px}
+  .sec{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:14px}
+  .sec h3{margin:0 0 8px;font-size:14px;color:var(--accent2);letter-spacing:.04em}
+  .sec p{margin:0;font-size:15px}
+  .match{display:flex;gap:12px}
+  .match .sec{flex:1;margin-bottom:14px}
+  .match .good h3{color:var(--ok)}
+  .match .bad h3{color:var(--warn)}
+  .mname{font-weight:800;font-size:15px;margin:0 0 4px}
+  .mreason{font-size:13px;color:var(--muted);margin:0}
+  .cta{margin-top:24px}
+  .cta .btn{margin-bottom:12px}
+  .disc{font-size:11px;color:var(--muted);margin-top:22px;line-height:1.6;border-top:1px solid var(--line);padding-top:16px}
+  /* ---- Characters / Mascots ---- */
+  .introChars{display:flex;justify-content:center;gap:2px;margin:0 0 26px;flex-wrap:wrap}
+  .introChars svg{width:52px;height:52px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.25))}
+  .hero{background:linear-gradient(165deg,var(--card2),var(--card));border:1px solid var(--line);
+    border-radius:22px;padding:26px 18px 22px;text-align:center;margin-bottom:18px;position:relative;overflow:hidden}
+  .hero::before{content:"";position:absolute;inset:0;background:radial-gradient(120px 120px at 50% 0,rgba(255,93,143,.22),transparent)}
+  .hero > *{position:relative}
+  .heroMascot{width:150px;height:150px;margin:0 auto 6px;filter:drop-shadow(0 8px 18px rgba(0,0,0,.35));animation:pop .5s ease}
+  @keyframes pop{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+  .charname{font-size:15px;color:var(--accent);font-weight:800;letter-spacing:.06em}
+  .rarity{margin-top:12px;display:inline-block;font-size:12.5px;font-weight:700;color:#ffd36b;background:rgba(255,211,107,.1);border:1px solid rgba(255,211,107,.35);border-radius:999px;padding:6px 14px}
+  .rarity .stars{letter-spacing:2px}
+  .charname small{color:var(--muted);font-weight:600;font-size:12px;letter-spacing:.2em}
+  .mmascot{flex:0 0 46px;width:46px;height:46px}
+  .match .sec{display:flex;flex-direction:column}
+  .mhead{display:flex;align-items:center;gap:10px}
+  .mhead .mmascot{filter:drop-shadow(0 3px 6px rgba(0,0,0,.25))}
+  @media(max-width:420px){ .match{flex-direction:column;gap:0} h1{font-size:26px} .qtext{font-size:20px} }
+  /* ---- chars-desc.js の結果詳細文用スタイル ---- */
+  .desc-intro{font-size:17px;font-weight:600;line-height:1.8;margin:0 0 18px}
+  .desc-traits{margin:0;padding:0 0 0 1.3em;font-size:15px;line-height:2.2}
+  .desc-traits li{margin-bottom:2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- INTRO -->
+  <section id="intro" class="screen active">
+    <span class="badge">LOVECHAT 16 ｜ 恋愛メッセージ診断</span>
+    <h1>あなたの恋愛メッセージは、<br><span class="hl">どのタイプ？</span></h1>
+    <p class="lead">あなたの恋愛LINE、当ててみます。</p>
+    <div id="introChars" class="introChars" aria-hidden="true"></div>
+    <div class="meta">
+      <span class="chip">💞 16キャラ判定</span>
+      <span class="chip">⏱ 約90秒</span>
+      <span class="chip">📝 全20問</span>
+    </div>
+    <button class="btn" onclick="start()">あなたのタイプを見る →</button>
+    <p class="note">※この診断は人格を断定するものではなく、現在のメッセージ/DM上の会話傾向を整理するためのものです。</p>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="quiz" class="screen">
+    <div class="progress"><i id="pbar"></i></div>
+    <div class="qcount"><span id="qcur">1</span> / 20</div>
+    <div class="qnum" id="qnum">Q1</div>
+    <h2 class="qtext" id="qtext"></h2>
+    <button class="opt" id="optA" onclick="answer('a')"><span class="mark">✓</span><span id="optAt"></span></button>
+    <button class="opt" id="optB" onclick="answer('b')"><span class="mark">✓</span><span id="optBt"></span></button>
+    <div class="qnav">
+      <button class="lnk" id="back" onclick="back()">← 戻る</button>
+      <button class="lnk" onclick="restart()">最初から</button>
+    </div>
+  </section>
+
+  <!-- RESULT -->
+  <section id="result" class="screen"></section>
+
+</div>
+
+<script src="chars.js"></script>
+<script src="chars-desc.js"></script>
+<script>
+/* ===== ページ固有データ・ロジック ===== */
+/* キャラ表示系（NAMES / CATCH / CHAR / EAR / mascot / charVisual / 画像ローダー）は chars.js に分離 */
+
+const AXES = [
+  {key:"AR", a:{p:"A",label:"Active",sub:"自分から動く"}, b:{p:"R",label:"Reactive",sub:"反応する"}},
+  {key:"FS", a:{p:"F",label:"Fast",sub:"即レス"},        b:{p:"S",label:"Slow",sub:"じっくり"}},
+  {key:"EC", a:{p:"E",label:"Emotional",sub:"感情が出る"},b:{p:"C",label:"Cool",sub:"落ち着いてる"}},
+  {key:"DP", a:{p:"D",label:"Deep",sub:"本音で繋がる"},  b:{p:"P",label:"Pop",sub:"軽さで繋がる"}}
+];
+
+/* 設問（軸別） */
+const BANK = {
+  AR:[
+    {q:"会話が途切れたら？",a:["自分から新しい話題を振る","A"],b:["相手が何か送ってくるのを待つ","R"]},
+    {q:"気になる人ができたら？",a:["自分から連絡先を聞く・誘う","A"],b:["相手が動いてくれるのを待つ","R"]},
+    {q:"返信するとき、メッセージの長さは？",a:["相手より少し長めに書く","A"],b:["相手の長さに合わせる","R"]},
+    {q:"デートに誘うときは？",a:["自分から日程まで含めて提案する","A"],b:["流れや相手のタイミングに任せる","R"]},
+    {q:"しばらく連絡が途切れた相手には？",a:["自分から「久しぶり」と送ってみる","A"],b:["様子見／相手から来たら返す","R"]}
+  ],
+  FS:[
+    {q:"相手から返信が来たら？",a:["気づいたらすぐ返す","F"],b:["落ち着いてから／あとでまとめて返す","S"]},
+    {q:"返信を作るときは？",a:["考えすぎず勢いで送る","F"],b:["文面をじっくり練ってから送る","S"]},
+    {q:"通知を見た瞬間は？",a:["すぐ開いて反応する","F"],b:["既読をつけず、後でちゃんと見る","S"]},
+    {q:"1日のメッセージ頻度は？",a:["こまめに何度もやり取りする","F"],b:["1日数回、まとめてやり取り","S"]},
+    {q:"即レス、どう思う？",a:["即レス全然OK、むしろする方","F"],b:["即レスは重い気がして少し置く","S"]}
+  ],
+  EC:[
+    {q:"文面の絵文字・スタンプは？",a:["多め、感情をのせる","E"],b:["少なめ、シンプルに","C"]},
+    {q:"楽しいときは？",a:["「!」やテンション高めで表現する","E"],b:["落ち着いた言葉で淡々と伝える","C"]},
+    {q:"好意を感じたときは？",a:["言葉や反応に出ちゃう","E"],b:["あまり表には出さない","C"]},
+    {q:"相手が落ち込んでいたら？",a:["感情に寄り添って熱く共感する","E"],b:["冷静に整理して言葉をかける","C"]},
+    {q:"ミスをしてしまった時、LINEで謝るなら？",a:["感情を込めて「本当にごめん」と伝える","E"],b:["事実をシンプルに「ごめん」と送る","C"]}
+  ],
+  DP:[
+    {q:"距離を縮めたいときは？",a:["価値観や本音の話をする","D"],b:["軽いノリやボケで盛り上げる","P"]},
+    {q:"好きな話題は？",a:["恋愛観・将来・深めの話","D"],b:["日常の軽い話・趣味のネタ","P"]},
+    {q:"会話に満足するのは？",a:["本音で分かり合えたとき","D"],b:["テンポよく笑い合えたとき","P"]},
+    {q:"好きな人と話して「いい感じかも」と思う瞬間は？",a:["本音や弱さを話してくれたとき","D"],b:["一緒に笑えた・テンポが合ったとき","P"]},
+    {q:"重い話題が来たら？",a:["しっかり向き合って深める","D"],b:["重くしすぎず受け止める","P"]}
+  ]
+};
+
+/* インターリーブ表示順で20問を構築 */
+const QUESTIONS = [];
+for(let i=0;i<5;i++){ for(const ax of ["AR","FS","EC","DP"]){
+  const item = BANK[ax][i];
+  QUESTIONS.push({axis:ax, q:item.q, a:{t:item.a[0],pole:item.a[1]}, b:{t:item.b[0],pole:item.b[1]}});
+}}
+
+/* タイプ詳細（[lovechat16-types.md]準拠） */
+const TYPES = {
+AFED:{tend:"思ったことをすぐ言葉にし、感情をのせて深い話に踏み込む。質問も誘いも自分から出す。",strong:"熱量が伝わる。沈黙を作らず相手を引き込む。好意が分かりやすい。",acc:"熱が先行して重くなる。本音を早く出しすぎて引かれる。返信が来ないと畳みかけて追撃しがち。",adv:"1通の熱量を半分に。深い話は相手が出してから。送ったら待つ勇気を持つ。",good:["RFCD","テンポが合い、相手が冷静に受け止めてくれる"],bad:["ASEP","テンポも深さもズレ、熱が空回りする"],share:"私のメッセージタイプは【直感アタッカー型】🔥思ったら即送信、感情のせがち。"},
+AFEP:{tend:"即レス・絵文字多め・軽い話題を自分から振って場を温める。ノリで距離を詰める。",strong:"一緒にいて楽しい空気を作る。とっつきやすく、初速で好感度を稼げる。",acc:"ノリが良すぎて本気度が伝わらず遊び認定。軽さで誘いを流され、楽しい人止まり。",adv:"たまに真顔の一言を混ぜて本気度を見せる。ノリの中に誘いを通す。",good:["RFCP","軽快なテンポが噛み合い、深刻にならず続く"],bad:["ASED","テンポと温度の出し方が真逆でリズムが合わない"],share:"私のメッセージタイプは【ノリよく沼らせ型】😂テンションで距離詰めがち。"},
+AFCD:{tend:"感情は抑えめだが、本質的な話や誘いをストレートに切り出す。即レスで淡々と核心へ。",strong:"言葉に誠実さと重みがある。駆け引きせず信頼されやすい。誘いがはっきりしている。",acc:"感情表現が薄く「脈なし？」と誤読される。直球が唐突に見え、温度が乗る前に踏み込んで引かれる。",adv:"用件の前に感情のラベルを一言（「これ話したかった」等）。",good:["RFED","相手が感情を足してくれて温度差が埋まる"],bad:["ASCP","互いに感情を出さずテンポもズレ、温度が上がらないまま終わる"],share:"私のメッセージタイプは【静かな直球型】🎯感情は抑えめ、でも芯は直球。"},
+AFCP:{tend:"軽い話題を自分から速いテンポで回す。感情は出さず、リズムと間で会話を心地よく保つ。",strong:"ラリーが途切れない。ストレスのない会話で相手が返しやすい。スマートな印象。",acc:"テンポは良いが温度が上がらず友達ライン止まり。感情と深さがなく恋愛に切り替わらない。",adv:"テンポの良い所で一度だけ深い質問か誘いを差し込み、関係を前に進める。",good:["RFEP","相手の感情と反応がテンポに彩りを足す"],bad:["ASCD","深さとテンポが真逆で会話が噛み合わない"],share:"私のメッセージタイプは【テンポ職人型】🏓ラリーは途切れさせない。"},
+ASED:{tend:"返信はゆっくりだが、自分から深く感情のこもった長めの文を送る。一通の熱量が高い。",strong:"言葉に重みと真剣さ。一通で相手の心を動かせる。本気度が伝わる。",acc:"返信が遅いのに内容が重く、温度差で相手を不安にさせる。長文と熱量が「重い」と取られる。",adv:"熱量はそのまま、長さと頻度を抑える。遅い分、既読／未読の温度管理を丁寧に。",good:["RSCD","ゆっくりしたテンポが合い、相手が落ち着いて受け止める"],bad:["AFEP","テンポも深さも真逆で、熱が相手の軽さに流される"],share:"私のメッセージタイプは【じっくり情熱型】🔥遅いけど一通が重い。"},
+ASEP:{tend:"自分のペースで、感情と甘えを軽いノリにのせて出す。返信はゆっくりだが構ってほしさが滲む。",strong:"隙のある可愛げ。甘え上手で、相手の保護欲・構いたさを引き出す。",acc:"マイペースな放置と急な甘えの落差で振り回す印象。テンポが読めず相手が温度を測りかねる。",adv:"甘える前に一度ちゃんと反応を返す。放置と甘えの落差を小さく。",good:["RSCP","互いにのんびりで、相手が振り回されず受け止められる"],bad:["AFED","速くて深い相手に、マイペースな甘えが噛み合わない"],share:"私のメッセージタイプは【マイペース甘え型】🍮のんびり、たまに甘える。"},
+ASCD:{tend:"時間をかけて落ち着いた深い言葉を自分から投げる。相手の話を受けて本質的な問いを返す。",strong:"安心感と知性。相手が本音を話したくなる聞き役兼問いかけ役。信頼が積み上がる。",acc:"慎重すぎてテンポが遅れ、温度が上がる前に「相談できる人」止まり。重く理屈っぽく見える。",adv:"分析の前に好意を一言。問いかけだけでなく自己開示と誘いで「恋愛」に寄せる。",good:["RSED","深さが合い、相手の感情が温度を足す"],bad:["AFCP","深さとテンポが真逆で会話の質が噛み合わない"],share:"私のメッセージタイプは【熟考カウンセラー型】🧭落ち着いて深掘りがち。"},
+ASCP:{tend:"自分から動くが、感情を出さず軽く、間（余白）を保つ。詰めすぎず淡々と関係を続ける。",strong:"余裕と自立した印象。ガツガツせず、追わせる側に回れる。重くならない。",acc:"余白が冷たさ・無関心に見える。感情も深さもなく、相手に「脈なし」と判断され離れられる。",adv:"余白の中に好意のサインを一つ。冷たさと余裕は紙一重、たまに踏み込む。",good:["RSEP","相手の感情が余白を温め、軽さが合う"],bad:["AFCD","互いに感情薄く、テンポと深さがズレて温度ゼロ"],share:"私のメッセージタイプは【余白キープ型】🌙詰めない、追わせる派。"},
+RFED:{tend:"自分からは振らないが、即レスで感情たっぷりに深く共感する。相手の話を受けて熱く返す。",strong:"抜群の聞き上手・共感力。相手が「話していて気持ちいい」と感じ、安心して心を開く。",acc:"受け身で自分から進めず共感止まりで関係が動かない。感情過多で重く見える時も。",adv:"共感の後に自分から一歩（質問や誘い）を足す。受けるだけで終わらせない。",good:["AFCD","相手が引っ張り誘ってくれて、深さも合う"],bad:["RSEP","二人とも受け身＋テンポ深さズレで自然消滅"],share:"私のメッセージタイプは【反応濃いめ共感型】🥹即レスで全力共感。"},
+RFEP:{tend:"相手のノリに即レス・高テンションで乗っかる。絵文字とリアクションで場を盛り上げる受け手。",strong:"一緒にいて楽しい。相手のボケを拾い会話が弾む。明るく親しみやすい。",acc:"リアクション要員で終わり、本気度も深さも伝わらない。自分から進めず楽しい友達止まり。",adv:"盛り上げた後に一度だけ素の好意や誘いを入れて、関係を前に進める。",good:["AFCP","相手がテンポを作り、軽さが噛み合う"],bad:["RSED","テンポも深さも真逆で温度がすれ違う"],share:"私のメッセージタイプは【わちゃわちゃリアクション型】🎉ノリには全力で乗る。"},
+RFCD:{tend:"自分からは振らないが即レスで、落ち着いた言葉で誠実に深く返す。安定した受け手。",strong:"信頼感と安定感。即レスの誠実さで安心される。軽くなく、本音で向き合える。",acc:"受け身＋感情薄めで好意が伝わらず「いい人」止まり。自分から動かず機会を逃す。",adv:"誠実さに好意のサインを一さじ。即レスできる時こそ、自分から次の話題や誘いを。",good:["AFED","相手が引っ張り感情を足してくれる"],bad:["RSCP","二人とも受け身で感情薄く、誰も進めず終わる"],share:"私のメッセージタイプは【即レス誠実型】📨速くて誠実、でも受け身。"},
+RFCP:{tend:"即レスだが短く軽く、感情も深さも出さない。最小エネルギーでテンポよくラリーを続ける。",strong:"気軽で続けやすい。相手にプレッシャーを与えず、長く緩く繋がれる。",acc:"短文・無感情で「興味ある？」と疑われる。深さも好意も乗らず、関係が温まらない。",adv:"短文に感情を一語足す（「それいいね、行きたい」）。たまに自分から振る。",good:["AFEP","相手が感情とノリで温度を足してくれる"],bad:["RSCD","二人とも淡々受け身で、温度ゼロのまま消える"],share:"私のメッセージタイプは【省エネ即レス型】⚡速いけど短い。"},
+RSED:{tend:"返信はゆっくりだが、感情のこもった深い長文で受け止める。一通で相手の核心に触れる。",strong:"深い共感と包容力。じっくり向き合い、相手が本音を預けたくなる。言葉が刺さる。",acc:"遅さと重さで温度差が出る。受け身で進めず、遅い深い返信が相手を不安にさせる。",adv:"遅い分、既読のひと言フォローを。深さは保ちつつ、たまに自分から問う。",good:["ASCD","深さが合い、相手が引っ張ってくれる"],bad:["RFEP","テンポと深さが真逆で噛み合わない"],share:"私のメッセージタイプは【深海共感型】🌊遅いけど深く受け止める。"},
+RSEP:{tend:"気が向いた時に感情と軽いノリで反応する。返信タイミングは読めず、ムラのある受け手。",strong:"自然体で飾らない。ハマった時のテンションが魅力。追わせる気まぐれさ。",acc:"気まぐれな放置で温度が読めず相手が不安に。受け身＋ムラで関係が安定せず流れる。",adv:"放置した時は一言フォロー。気まぐれの波を少し穏やかに。",good:["ASCP","相手の余裕が気まぐれを受け止め、軽さが合う"],bad:["RFED","即レス深め相手に気まぐれが噛み合わない"],share:"私のメッセージタイプは【気まぐれリアクター型】🍃気が向いた時に全力。"},
+RSCD:{tend:"ゆっくり、感情を抑えて、深く考えてから返す。相手をよく観察し慎重に距離を測る受け手。",strong:"思慮深く誠実。軽率に動かず言葉に信頼が宿る。本質を見抜く落ち着き。",acc:"慎重すぎて動かず温度も好意も見えない。遅い・淡々・受け身の三重で「脈なし」判定されやすい。",adv:"観察した好意を言葉に出す勇気。慎重さに「あなたに興味がある」サインを添える。",good:["ASED","相手の情熱が慎重さを溶かし、深さも合う"],bad:["RFCP","二人とも淡々、テンポ深さズレで温度ゼロ"],share:"私のメッセージタイプは【慎重観察型】🔍じっくり見て、慎重に返す。"},
+RSCP:{tend:"返信はゆっくり短く、感情も深さも出さない。既読のまま温め、最小限の反応で軽く繋がる。",strong:"全く重くない。マイペースで自立した印象。相手にプレッシャーを与えない余裕。",acc:"既読放置＋無感情＋受け身で、ほぼ確実に「興味なし」と判断される。最も自然消滅しやすい。",adv:"既読のまま放置しない。短くても感情を一語。週に一度は自分から振る。",good:["ASEP","相手の甘えと感情が温度を足し、のんびり同士で合う"],bad:["RFCD","テンポも深さも真逆で、誰も温度を上げられない"],share:"私のメッセージタイプは【既読温存型】🌫️のんびり、重くならない派。"}
+};
+
+/* ===== 状態 ===== */
+let cur = 0;
+const answers = new Array(QUESTIONS.length).fill(null); // 'a' | 'b'
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+function start(){ cur=0; answers.fill(null); show('quiz'); render(); }
+function restart(){ show('intro'); }
+
+function render(){
+  const q = QUESTIONS[cur];
+  document.getElementById('pbar').style.width = ((cur)/QUESTIONS.length*100)+'%';
+  document.getElementById('qcur').textContent = cur+1;
+  document.getElementById('qnum').textContent = 'Q'+(cur+1);
+  document.getElementById('qtext').textContent = q.q;
+  document.getElementById('optAt').textContent = q.a.t;
+  document.getElementById('optBt').textContent = q.b.t;
+  document.getElementById('optA').classList.toggle('sel', answers[cur]==='a');
+  document.getElementById('optB').classList.toggle('sel', answers[cur]==='b');
+  document.getElementById('back').disabled = cur===0;
+}
+function answer(which){
+  answers[cur]=which;
+  render();
+  setTimeout(()=>{
+    if(cur < QUESTIONS.length-1){ cur++; render(); }
+    else finish();
+  }, 220);
+}
+function back(){ if(cur>0){ cur--; render(); } }
+
+/* ===== 判定 ===== */
+function computeResult(){
+  const score = {A:0,R:0,F:0,S:0,E:0,C:0,D:0,P:0};
+  QUESTIONS.forEach((q,i)=>{
+    const pole = answers[i]==='a' ? q.a.pole : q.b.pole;
+    score[pole]++;
+  });
+  const code =
+    (score.A>=score.R?'A':'R') +
+    (score.F>=score.S?'F':'S') +
+    (score.E>=score.C?'E':'C') +
+    (score.D>=score.P?'D':'P');
+  return {code, score};
+}
+
+function finish(){
+  document.getElementById('pbar').style.width='100%';
+  const {code, score} = computeResult();
+  logResult(code, score);
+  renderResult(code, score);
+  show('result');
+}
+
+/* ===== データ蓄積（分布表示はサンプルが溜まってから／要バックエンド） =====
+   いまはコスト最小のローカル記録のみ。クロスユーザーの分布は端末ローカルでは
+   代表性がないため表示しない（偽の分布は出さない方針）。サーバ集計が用意でき
+   次第、下のsendBeacon1行を有効化すれば全体分布の母数が貯まり始める。 */
+function logResult(code, score){
+  try{
+    const KEY='lc16_results';
+    const arr = JSON.parse(localStorage.getItem(KEY) || '[]');
+    arr.push({ code, score, t: Date.now() });
+    localStorage.setItem(KEY, JSON.stringify(arr.slice(-2000)));
+    // navigator.sendBeacon && navigator.sendBeacon('/api/result', JSON.stringify({code, score, t:Date.now()}));
+  }catch(e){ /* localStorage不可でも診断は続行 */ }
+}
+/* 将来の分布表示用ヘルパ（現状は未使用・基盤のみ） */
+function localTally(){
+  try{
+    const arr = JSON.parse(localStorage.getItem('lc16_results') || '[]');
+    const tally = {}; arr.forEach(r => tally[r.code] = (tally[r.code]||0)+1);
+    return { n: arr.length, tally };
+  }catch(e){ return { n:0, tally:{} }; }
+}
+
+function pct(win,lose){ return Math.round(win/(win+lose)*100); }
+
+let LAST_RESULT = null;
+function renderResult(code, score){
+  LAST_RESULT = {code, score};
+  const t = TYPES[code];
+  const d = (typeof DESC !== 'undefined' && DESC[code]) || null;
+  const barsHtml = AXES.map(ax=>{
+    const av=score[ax.a.p], bv=score[ax.b.p];
+    const aWin = av>=bv;
+    const winP = aWin ? pct(av,bv) : pct(bv,av);
+    const leftPct = aWin ? winP : 100-winP; // bar fill width from left = A-share
+    const aShare = Math.round(av/(av+bv)*100);
+    return `<div class="bar">
+      <div class="lbls">
+        <b class="${aWin?'on':'off'}">${ax.a.label} <small>${ax.a.sub}</small></b>
+        <b class="${aWin?'off':'on'}">${ax.b.label} <small>${ax.b.sub}</small></b>
+      </div>
+      <div class="track"><i style="left:0;width:${aShare}%"></i></div>
+    </div>`;
+  }).join('');
+
+  const g = t.good, b = t.bad, ch = CHAR[code];
+  const rar = rarityFor(code, (typeof localTally==='function' ? localTally().tally : {}));
+  const shareText = `${ch.emoji}私のメッセージタイプは【${NAMES[code]}／会話キャラは${ch.name}】\n${rar.starStr} 推定${rar.oneIn}人に1人の${rar.label}！\nあなたは？診断▶ #ラブチャット16`;
+  const shareUrl = location.href.split('#')[0];
+  /* chars-desc.js が読み込まれていればリッチな結果文章、なければ既存テキストにフォールバック */
+  const descHtml = d
+    ? '<p class="desc-intro">'+d.intro+'</p>'
+      +'<div class="sec"><h3>あるある</h3><ul class="desc-traits">'+d.traits.map(function(tr){return '<li>'+tr+'</li>';}).join('')+'</ul></div>'
+      +'<div class="sec"><h3>強み</h3><p>'+d.strength+'</p></div>'
+      +'<div class="sec"><h3>気をつけたいこと</h3><p>'+d.caution+'</p></div>'
+    : '<div class="sec"><h3>会話傾向</h3><p>'+t.tend+'</p></div>'
+      +'<div class="sec"><h3>メッセージでの強み</h3><p>'+t.strong+'</p></div>'
+      +'<div class="sec"><h3>事故りやすいポイント</h3><p>'+t.acc+'</p></div>';
+
+  document.getElementById('result').innerHTML = `
+    <div class="hero">
+      <div class="heroMascot">${charVisual(code,150)}</div>
+      <div class="rcode">${code.split('').join(' ')}</div>
+      <div class="charname">会話キャラ：${escapeAttr(ch.name)} <small>${ch.emoji}</small></div>
+      <div class="rname">${NAMES[code]}</div>
+      <div class="rcatch">${escapeAttr(CATCH[code])}</div>
+      <div class="rarity"><span class="stars">${rar.starStr}</span> ${rar.label}｜推定出現率 約${rar.pct}%（${rar.oneIn}人に1人）</div>
+    </div>
+
+    <div class="bars">${barsHtml}</div>
+
+    ${descHtml}
+    <div class="sec"><h3>ワンポイントアドバイス</h3><p>${t.adv}</p></div>
+
+    <div class="match">
+      <div class="sec good">
+        <div class="mhead"><div class="mmascot">${charVisual(g[0],46)}</div>
+          <div><h3>◎ 相性のいいキャラ</h3><p class="mname">${CHAR[g[0]].name}｜${NAMES[g[0]]}</p></div></div>
+        <p class="mreason">${g[1]}</p></div>
+      <div class="sec bad">
+        <div class="mhead"><div class="mmascot">${charVisual(b[0],46)}</div>
+          <div><h3>△ 苦手なキャラ</h3><p class="mname">${CHAR[b[0]].name}｜${NAMES[b[0]]}</p></div></div>
+        <p class="mreason">${b[1]}</p></div>
+    </div>
+
+    <div class="cta">
+      <button class="btn" onclick="shareImage()">📸 結果画像を保存してシェア</button>
+      <button class="btn sub" onclick="shareX('${escapeJs(shareText)}','${shareUrl}')">𝕏 にテキストでシェア</button>
+      <button class="btn sub" onclick="location.href='partner.html'">相手の返信タイプも診断する →</button>
+      <button class="btn sub" onclick="restart()">もう一度診断する</button>
+    </div>
+
+    ${adCard()}
+
+    <section class="faq-section" id="faq">
+      <h2 class="faq-title">よくある質問</h2>
+      <details class="faq-item">
+        <summary>この診断は信頼できますか？</summary>
+        <p>「信頼できる」というより「当てることを目指している」診断です。心理学の公式テストではなく、恋愛LINE/DMの「会話のクセ」をシンプルに可視化するツールです。4つの軸（積極性・速度・感情・深さ）に基づく20問で、今どんなメッセージスタイルを持っているかを診断します。結果を鵜呑みにせず「傾向の一つ」として参考にしてください。</p>
+      </details>
+      <details class="faq-item">
+        <summary>結果が毎回変わる気がするのですが？</summary>
+        <p>会話スタイルは状況・相手・気分によって変わるため、答えが変わると結果も変わります。「いつもの自分」を意識しながら答えると、より一貫した結果が出やすいです。特定の相手を念頭に置いて答えるのも◎。</p>
+      </details>
+      <details class="faq-item">
+        <summary>相手のタイプも調べられますか？</summary>
+        <p>「相手の返信タイプ診断」があります。相手のメッセージの特徴（返信速度・絵文字の量・話題の選び方など）を選択式で入力すると、相手の推定タイプがわかります。<a href="partner.html" style="color:var(--accent)">→ 相手の返信タイプを診断する</a></p>
+      </details>
+      <details class="faq-item">
+        <summary>どのタイプが「恋愛上手」ですか？</summary>
+        <p>どのタイプも「上手」なわけではなく、「向いてる場面が違う」だけです。どのタイプにも強みと注意点があります。「恋愛上手になるコツ」は、自分のタイプの弱点を知って、それを補うことです。</p>
+      </details>
+      <details class="faq-item">
+        <summary>2人の相性を詳しく知りたい</summary>
+        <p>相性診断ページで確認できます。自分のタイプと相手のタイプを選ぶと、2タイプの相性・どこで噛み合うか・どこですれ違いやすいかがわかります。<a href="aishou.html" style="color:var(--accent)">→ タイプ別相性診断</a></p>
+      </details>
+      <details class="faq-item">
+        <summary>タイプが変わることはありますか？</summary>
+        <p>あります。変わって当然です。このタイプは「今のあなたのメッセージスタイルの傾向」であり、人格の固定ラベルではありません。成長・経験・相手によって自然に変わります。半年後にもう一度診断して、変化を確認するのも面白いです。</p>
+      </details>
+      <details class="faq-item">
+        <summary>入力した内容はどこかに保存されますか？</summary>
+        <p>一切保存されません。このサービスは、すべての処理があなたのスマホ・PCの中だけで完結します。入力した情報はサーバーに送信されず、診断が終わるとデータは消えます。プライバシーの観点から、外部への通信を技術的に遮断しています。</p>
+      </details>
+      <details class="faq-item">
+        <summary>診断を何回でも受けられますか？</summary>
+        <p>はい、何回でも無料です。「今の自分」「好きな人への自分」「職場の同僚への自分」など、状況を変えながら何度でも診断できます。</p>
+      </details>
+    </section>
+
+    <p class="disc">※本診断は相手やあなたの人格を断定するものではなく、現在のメッセージ/DM上の会話傾向を整理するためのものです。「必ず返信が来る」「絶対に会える」といった成果を保証するものではありません。人を操るためではなく、すれ違いを減らすための会話分析です。</p>
+  `;
+  upgradeCharVisuals(document.getElementById('result'));
+}
+
+/* ===== ユーティリティ ===== */
+function escapeAttr(s){ return String(s).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c])); }
+function escapeJs(s){ return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,'\\n'); }
+function shareX(text,url){
+  const u='https://twitter.com/intent/tweet?text='+encodeURIComponent(text)+'&url='+encodeURIComponent(url);
+  window.open(u,'_blank');
+}
+function copyShare(text){
+  navigator.clipboard?.writeText(text).then(
+    ()=>alert('結果をコピーしました'),
+    ()=>prompt('コピーしてください', text)
+  );
+}
+/* 結果カード画像を生成して保存/シェア（バズの主レバー） */
+function shareImage(){
+  if(!LAST_RESULT) return;
+  const {code, score} = LAST_RESULT;
+  const bars = AXES.map(ax=>{
+    const av=score[ax.a.p], bv=score[ax.b.p], aWin=av>=bv;
+    return { left:ax.a.label, right:ax.b.label, aWin, aShare:Math.round(av/(av+bv)*100) };
+  });
+  const rar = rarityFor(code, (typeof localTally==='function' ? localTally().tally : {}));
+  const txt = `私の恋愛メッセージタイプは【${NAMES[code]}／${CHAR[code].name}】${CHAR[code].emoji}\n${rar.starStr} 推定${rar.oneIn}人に1人の${rar.label}！\nあなたは？無料診断▶ #ラブチャット16`;
+  shareResultImage(code, { bars, catch:CATCH[code], rarity:`${rar.starStr} ${rar.label}・${rar.oneIn}人に1人` }, txt);
+}
+
+/* イントロのマスコット列（複数キャラを見せて期待感を作る） */
+(function initIntro(){
+  const picks = ['AFED','RFEP','ASEP','RFCD','RSED','AFCP','RSCP','ASCD'];
+  const el = document.getElementById('introChars');
+  if(el){ el.innerHTML = picks.map(c => charVisual(c, 56)).join(''); upgradeCharVisuals(el); }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- プライバシー：相談者の実データも端末外へ出さない。connect-src 'none' で外部送信を遮断 -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'">
+<title>恋愛事故調査ファイル｜下書き生成（管理用）</title>
+<style>
+  :root{--bg1:#16111f;--bg2:#221634;--card:#241a38;--card2:#2e2148;--accent:#ff5d8f;--accent2:#a06bff;--text:#f4eeff;--muted:#b1a4cf;--line:#3e2f57;--ok:#5de0a8;--warn:#ffb86b}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;background:linear-gradient(160deg,var(--bg1),var(--bg2));color:var(--text);min-height:100vh;line-height:1.7}
+  .wrap{max-width:720px;margin:0 auto;padding:22px 18px 80px}
+  .badge{display:inline-block;font-size:12px;letter-spacing:.1em;color:var(--accent2);border:1px solid var(--line);border-radius:999px;padding:5px 12px}
+  h1{font-size:24px;margin:14px 0 4px;font-weight:800}
+  h1 .hl{background:linear-gradient(120deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--muted);font-size:13px;margin:0 0 18px}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}
+  .panel h2{font-size:14px;margin:0 0 12px;color:var(--accent2);letter-spacing:.03em}
+  .flbl{display:block;font-size:13px;font-weight:700;color:var(--muted);margin:12px 0 6px}
+  .flbl:first-child{margin-top:0}
+  .finput{width:100%;background:var(--bg2);border:1.5px solid var(--line);color:var(--text);border-radius:10px;padding:11px 13px;font-size:14px;font-family:inherit;line-height:1.6}
+  .finput:focus{outline:none;border-color:var(--accent2)}
+  textarea.finput{resize:vertical;min-height:90px}
+  .row2{display:flex;gap:10px;flex-wrap:wrap}.row2>div{flex:1;min-width:140px}
+  .privacy{background:rgba(93,224,168,.08);border:1px solid rgba(93,224,168,.32);border-radius:12px;padding:11px 14px;font-size:12.5px;color:var(--muted);margin-bottom:14px}
+  .privacy b{color:var(--ok)} .privacy code{background:rgba(255,255,255,.08);padding:1px 5px;border-radius:5px;font-size:11px}
+  .maprow{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+  .maprow input{flex:1;min-width:0}
+  .maprow .arrow{color:var(--muted);font-weight:800}
+  .mini{background:none;border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer}
+  .filerow{display:flex;align-items:center;gap:10px;margin:0 0 10px;flex-wrap:wrap}
+  .filebtn{display:inline-block;cursor:pointer;font-size:13px;font-weight:700;color:var(--text);background:var(--card2);border:1px solid var(--line);border-radius:9px;padding:8px 12px}
+  .filebtn input{display:none}.filename{font-size:12px;color:var(--ok)}
+  .btn{display:block;width:100%;border:0;cursor:pointer;font-weight:800;font-size:16px;color:#fff;background:linear-gradient(120deg,var(--accent),var(--accent2));padding:15px;border-radius:13px;box-shadow:0 8px 22px rgba(255,93,143,.25)}
+  .btn:active{transform:scale(.99)}
+  .btn.sub{background:transparent;border:1px solid var(--line);color:var(--text);box-shadow:none;font-size:14px;font-weight:700}
+  .out{display:none}
+  .estimate{display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
+  .estimate .big{font-size:18px;font-weight:800}
+  .estimate .warm{font-size:14px;color:var(--muted)}
+  .gtrack{height:10px;border-radius:999px;background:linear-gradient(90deg,#6fa8e0,#a06bff,#ff9a76,#ff5d8f);position:relative;flex:1;min-width:120px}
+  .gtrack .gmark{position:absolute;top:-3px;width:5px;height:16px;border-radius:3px;background:#fff}
+  .draft{position:relative}
+  .draft .cp{position:absolute;top:10px;right:10px}
+  .checks label{display:flex;gap:9px;align-items:flex-start;font-size:13.5px;margin-bottom:8px;cursor:pointer;color:var(--muted)}
+  .checks input{margin-top:3px}
+  .note{font-size:11px;color:var(--muted);margin-top:6px}
+  .links{font-size:12px;margin-top:18px}.links a{color:var(--muted);margin-right:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <span class="badge">管理用ツール ｜ 非公開</span>
+  <h1>恋愛事故調査ファイル <span class="hl">下書き生成</span></h1>
+  <p class="sub">相談を貼り付けると、匿名化・再構成・タイプ推定・分析／投稿の下書き・公開前チェックを一括生成。<b>最終確認は必ず人間が行うこと。</b></p>
+
+  <div class="privacy"><b>🔒 端末内処理</b>：入力した相談・履歴はブラウザ内だけで処理され、送信も保存もされません（<code>connect-src 'none'</code>）。生成物は手動でコピーして使ってください。</div>
+
+  <!-- 入力 -->
+  <div class="panel">
+    <h2>① 相談を入力</h2>
+    <label class="flbl">状況メモ（任意）</label>
+    <textarea id="memo" class="finput" rows="2" placeholder="例：マッチングアプリで知り合い2週間。会う話を出したら返信が遅くなった…"></textarea>
+    <div class="row2">
+      <div><label class="flbl">相手の表示名 <span style="color:var(--warn)">*</span></label><input id="pName" class="finput" placeholder="履歴に出る名前"></div>
+      <div><label class="flbl">自分の表示名（任意）</label><input id="myName" class="finput" placeholder="空欄可"></div>
+    </div>
+    <label class="flbl">会話履歴（貼り付け or ファイル）</label>
+    <div class="filerow">
+      <label class="filebtn">📎 ファイルを選択<input type="file" accept=".txt,.csv,.log,text/plain" onchange="loadFile(this)"></label>
+      <span id="fileName" class="filename"></span>
+    </div>
+    <textarea id="chat" class="finput" rows="6" placeholder="LINE等のトーク履歴を貼り付け（時刻付きだと返信速度も推定）"></textarea>
+  </div>
+
+  <!-- 匿名化設定 -->
+  <div class="panel">
+    <h2>② 匿名化設定</h2>
+    <label class="flbl">名前の置換（実名 → 仮名）※呼び方の構造は保たれます（例 りな→るな で「りなちゃん」→「るなちゃん」）</label>
+    <div id="maps"></div>
+    <button class="mini" onclick="addMap()">＋ 行を追加</button>
+    <label class="flbl">その他伏せる語（カンマ区切り：地名・店名・学校・職場など）</label>
+    <input id="hide" class="finput" placeholder="例：渋谷, ○○大学, スタバ△△店">
+    <p class="note">URL・メール・@ID・電話番号・日付は自動で伏せ字化されます。地名・店名は誤検出が難しいので上の欄で指定してください。</p>
+  </div>
+
+  <button class="btn" onclick="generate()">下書きを生成する</button>
+  <div style="height:10px"></div>
+  <button class="btn sub" onclick="clearAll()">入力を全消去</button>
+
+  <!-- 出力 -->
+  <div id="out" class="out">
+    <div class="panel">
+      <h2>③ タイプ＆温度の推定</h2>
+      <div class="estimate">
+        <div><div class="big" id="estType">—</div><div class="warm" id="estTrait"></div></div>
+        <div class="gtrack"><div class="gmark" id="estMark" style="left:0%"></div></div>
+        <div class="warm" id="estWarm"></div>
+      </div>
+      <div id="estNote" class="note"></div>
+    </div>
+
+    <div class="panel draft">
+      <h2>④ 匿名化＆再構成チャット</h2>
+      <button class="mini cp" onclick="copyEl('reChat')">コピー</button>
+      <textarea id="reChat" class="finput" rows="8"></textarea>
+      <p class="note">⚠ 地名・店名・特徴的な口癖が残っていないか必ず目視確認してください。</p>
+    </div>
+
+    <div class="panel draft">
+      <h2>⑤ 事故分析ファイル下書き</h2>
+      <button class="mini cp" onclick="copyEl('reAnalysis')">コピー</button>
+      <textarea id="reAnalysis" class="finput" rows="14"></textarea>
+    </div>
+
+    <div class="panel draft">
+      <h2>⑥ X投稿下書き</h2>
+      <button class="mini cp" onclick="copyEl('rePost')">コピー</button>
+      <textarea id="rePost" class="finput" rows="8"></textarea>
+    </div>
+
+    <div class="panel">
+      <h2>⑦ 公開前チェックリスト</h2>
+      <div class="checks" id="checks"></div>
+      <p class="note">全項目にチェックが入るまで公開しない運用を推奨。</p>
+    </div>
+  </div>
+
+  <div class="links"><a href="index.html">自己診断</a><a href="partner.html">相手診断</a></div>
+</div>
+
+<script>
+/* ===== 型データ（管理ツール用・自己完結。将来 engine.js に共有化予定） ===== */
+const NAMES={AFED:"直感アタッカー型",AFEP:"ノリよく沼らせ型",AFCD:"静かな直球型",AFCP:"テンポ職人型",ASED:"じっくり情熱型",ASEP:"マイペース甘え型",ASCD:"熟考カウンセラー型",ASCP:"余白キープ型",RFED:"反応濃いめ共感型",RFEP:"わちゃわちゃリアクション型",RFCD:"即レス誠実型",RFCP:"省エネ即レス型",RSED:"深海共感型",RSEP:"気まぐれリアクター型",RSCD:"慎重観察型",RSCP:"既読温存型"};
+const PT={
+  AFED:{trait:"熱量高め・即レスでぐいぐい来る。",send:"同じテンポと熱量で受け止め、感情に正直に返す。",avoid:"そっけない短文や既読放置。",next:"勢いがあるうちに会う約束へ。"},
+  AFEP:{trait:"ノリと勢いで距離を詰める軽快タイプ。",send:"ノリと絵文字で楽しく即レス。",avoid:"真面目すぎる長文や重い詰め。",next:"軽いノリのまま誘いを通す。"},
+  AFCD:{trait:"感情控えめでも核心を突く誠実タイプ。",send:"駆け引きせず中身で誠実に返す。",avoid:"絵文字過多や軽い受け流し。",next:"ストレートに予定を聞く。"},
+  AFCP:{trait:"テンポ重視で軽快に回すタイプ。",send:"短めテンポ良くリズムを合わせる。",avoid:"重い長文や深掘りでテンポを止める。",next:"軽いノリで会う流れを作る。"},
+  ASED:{trait:"返信は遅いが一通が濃いタイプ。",send:"遅くても気持ちにしっかり応える。",avoid:"即レス催促や軽い流し。",next:"焦らず丁寧に距離を詰めて誘う。"},
+  ASEP:{trait:"マイペースで甘え混じり、波があるタイプ。",send:"甘えを受け止めペースを許す。",avoid:"返信遅いと責める・詰める。",next:"プレッシャーなくさりげなく誘う。"},
+  ASCD:{trait:"じっくり考え深い話を好むタイプ。",send:"中身のある返信＋自己開示で信頼を積む。",avoid:"テンポ催促や薄い相槌。",next:"深い話の流れから会う提案を。"},
+  ASCP:{trait:"感情を出さず余白を保つタイプ。",send:"追わず余白を尊重し軽めに。",avoid:"連投や重い好意。",next:"さらっと誘って引く余裕も見せる。"},
+  RFED:{trait:"即レスで全力共感だが受け身のタイプ。",send:"こちらから話題と質問を出してリード。",avoid:"会話の丸投げやそっけなさ。",next:"こちらが主導して誘う。"},
+  RFEP:{trait:"ノリには全力だが自分から動かないタイプ。",send:"話題やボケを振って盛り上げる。",avoid:"重い空気や自分から動かないこと。",next:"楽しい流れのままこちらから誘う。"},
+  RFCD:{trait:"即レスで誠実だが受け身で好意が出にくいタイプ。",send:"こちらから話題を出し誠実に重ねる。",avoid:"好意サインを待って放置。",next:"こちらから具体的に誘う。"},
+  RFCP:{trait:"即レスだが短く淡白な省エネタイプ。",send:"軽く短く深追いせず続ける。",avoid:"長文や重い質問でのプレッシャー。",next:"軽いノリの口実で会う流れ。"},
+  RSED:{trait:"遅いが深く受け止める内省的タイプ。",send:"遅くてOKと示し深い話を投げる。",avoid:"即レス要求や浅い話。",next:"焦らず深い話の延長で誘う。"},
+  RSEP:{trait:"気まぐれで波があり読みにくいタイプ。",send:"波に合わせ来た時に楽しく返す。",avoid:"放置を責める・追いかける。",next:"乗っている瞬間に軽く誘う。"},
+  RSCD:{trait:"慎重に距離を測る警戒型タイプ。",send:"焦らず誠実に安心感を積む。",avoid:"ガツガツ・軽薄な印象。",next:"信頼が育ってから慎重に誘う。"},
+  RSCP:{trait:"既読のまま淡白で温度が最も見えにくいタイプ。",send:"軽く負担なくたまにこちらから。",avoid:"追いメッセージや重い好意。",next:"プレッシャーゼロでさらっと誘う。"}
+};
+const INPUTS=[
+  {opts:[{ar:"A2"},{ar:"A1"},{ar:"R2"}]},{opts:[{fs:"F2"},{fs:"S1"},{fs:"S2"}]},
+  {opts:[{dp:"D2"},{dp:"P1"},{dp:"P2"}]},{opts:[{ec:"E2"},{ec:"E1"},{ec:"C2"}]},
+  {opts:[{ar:"A2"},{ar:"A1"},{ar:"R2"}]},{opts:[{ar:"A1"},{},{ar:"R1"}]},
+  {opts:[{},{},{}]}
+];
+const WARM=[[15,8,0],[10,5,0],[10,5,0],[8,4,0],[17,8,0],[25,8,0],[15,5,-10]];
+function compute(q){
+  const sc={A:0,R:0,F:0,S:0,E:0,C:0,D:0,P:0};let warm=0;
+  q.forEach((oi,qi)=>{const o=INPUTS[qi].opts[oi];['ar','fs','ec','dp'].forEach(k=>{if(o[k])sc[o[k][0]]+=+o[k].slice(1);});warm+=WARM[qi][oi];});
+  warm=Math.max(0,Math.min(100,warm));
+  const code=(sc.A>=sc.R?'A':'R')+(sc.F>=sc.S?'F':'S')+(sc.E>=sc.C?'E':'C')+(sc.D>=sc.P?'D':'P');
+  return {code,warm};
+}
+function band(w){if(w>=72)return{e:'🔥',l:'かなり脈あり'};if(w>=50)return{e:'😊',l:'脈は十分・育成期'};if(w>=30)return{e:'🤔',l:'まだ様子見'};return{e:'🧊',l:'温度低下・要注意'};}
+
+/* ===== 会話解析（partner.html と同等／端末内） ===== */
+const EMOJI_RE=/\p{Extended_Pictographic}/u;
+function parseTurns(text,partner,me){
+  const lines=text.split(/\r?\n/),timeRe=/(\d{1,2}):(\d{2})/;
+  function spk(n){if(!n)return null;n=n.trim();if(partner&&n.includes(partner))return 'p';if(me&&n.includes(me))return 'm';return 'm';}
+  const tl=[];let last=null,dayBase=0;
+  for(let raw of lines){let line=raw.replace(/‎/g,'').trim();if(!line)continue;
+    if(/^\d{4}[\/\-.]\d{1,2}[\/\-.]\d{1,2}/.test(line)||/^\d{1,2}月\d{1,2}日/.test(line)){dayBase+=1440;last=null;continue;}
+    let who=null,msg=line,tmin=null;
+    if(line.includes('\t')){const p=line.split('\t').map(s=>s.trim()).filter(s=>s.length);
+      if(p.length>=3&&timeRe.test(p[0])){const m=p[0].match(timeRe);tmin=dayBase+(+m[1])*60+(+m[2]);who=spk(p[1]);msg=p.slice(2).join(' ');}
+      else if(p.length===2){who=spk(p[0]);msg=p[1];}}
+    if(who===null){const cm=line.match(/^([^:：\t]{1,24})[:：]\s*(.*)$/);if(cm&&cm[2]!==''){who=spk(cm[1]);msg=cm[2];}}
+    if(who===null){const tm=line.match(/^(\d{1,2}):(\d{2})\s+(\S+)\s+(.*)$/);if(tm){tmin=dayBase+(+tm[1])*60+(+tm[2]);who=spk(tm[3]);msg=tm[4];}}
+    if(who===null){who=last;}if(who===null)continue;
+    tl.push({who,t:tmin,msg});last=who;}
+  return tl;
+}
+function analyzeTurns(tl){
+  const P=tl.filter(x=>x.who==='p');if(P.length<3)return{error:'相手のメッセージを取り出せませんでした（表示名を確認）'};
+  const notes=[];
+  const avgLen=P.reduce((s,x)=>s+x.msg.length,0)/P.length;
+  const emoRate=P.filter(x=>EMOJI_RE.test(x.msg)||/[wｗ]{1,}$|笑|！|!{1,}/.test(x.msg)).length/P.length;
+  const qRate=P.filter(x=>/[?？]/.test(x.msg)).length/P.length;
+  const gaps=[];for(let i=1;i<tl.length;i++){if(tl[i].who==='p'&&tl[i-1].who==='m'&&tl[i].t!=null&&tl[i-1].t!=null){const g=tl[i].t-tl[i-1].t;if(g>=0&&g<=720)gaps.push(g);}}
+  const hasTime=gaps.length>0,medGap=hasTime?gaps.slice().sort((a,b)=>a-b)[Math.floor(gaps.length/2)]:null;
+  let opens=0,pOpens=0;for(let i=0;i<tl.length;i++){const prev=tl[i-1];const gap=(prev&&tl[i].t!=null&&prev.t!=null)?tl[i].t-prev.t:null;const isOpen=!prev||(prev.who!==tl[i].who&&(gap===null||gap>60))||(gap!=null&&gap>180);if(isOpen){opens++;if(tl[i].who==='p')pOpens++;}}
+  const pOpenRate=opens?pOpens/opens:qRate;
+  const meetRe=/(会|行こ|行きたい|会いたい|予定|いつ|空いて|都合|デート|ご飯|ごはん|飯|飲|遊|どこ行|来週|今度)/,coolRe=/(忙し|今度ね|また今度|考え|わからな|微妙|無理|きつい)/;
+  const pMeet=P.filter(x=>meetRe.test(x.msg)),pMeetCool=pMeet.filter(x=>coolRe.test(x.msg));
+  const half=Math.floor(P.length/2);
+  const warmth=arr=>{if(!arr.length)return 0;const e=arr.filter(x=>EMOJI_RE.test(x.msg)||/笑|！|!/.test(x.msg)).length/arr.length;const l=arr.reduce((s,x)=>s+x.msg.length,0)/arr.length;const q=arr.filter(x=>/[?？]/.test(x.msg)).length/arr.length;return e*40+Math.min(l,40)+q*30;};
+  const trendDelta=warmth(P.slice(half))-warmth(P.slice(0,half));
+  const q=[];
+  q[0]=qRate>=0.25?0:qRate>=0.08?1:2;
+  if(hasTime){q[1]=medGap<15?0:medGap<180?1:2;}else{q[1]=1;notes.push('返信速度は時刻情報が無く推定不可（「数時間」と仮置き）');}
+  q[2]=avgLen>=35?0:avgLen>=14?1:2;
+  q[3]=emoRate>=0.4?0:emoRate>=0.12?1:2;
+  q[4]=(pOpenRate>=0.45||qRate>=0.25)?0:(pOpenRate>=0.2||qRate>=0.08)?1:2;
+  if(pMeet.length===0){q[5]=1;notes.push('会う・予定の話が見当たらない（「曖昧」と仮置き）');}else{q[5]=pMeetCool.length/pMeet.length<=0.4?0:1;}
+  q[6]=trendDelta>8?0:trendDelta<-8?2:1;
+  return {q,notes,stats:{msgs:P.length,avgLen:Math.round(avgLen),emoRate,qRate,medGap,hasTime}};
+}
+function failPoints(q){
+  const f=[];
+  if(q[0]===2)f.push('相手から質問が来ず、会話が一方通行になりやすい');
+  if(q[1]===2)f.push('返信の間隔が空き、温度が保ちにくい');
+  if(q[2]===2)f.push('文量が短く、会話が広がりにくい');
+  if(q[3]===2)f.push('感情表現が少なく、温度や好意が読みにくい');
+  if(q[4]===2)f.push('相手から話題が出ず、こちら任せになっている');
+  if(q[5]!==0)f.push('会う・予定の話に発展しておらず、関係が次の段階へ進みにくい');
+  if(q[6]===2)f.push('直近で会話の温度が下がってきている');
+  if(!f.length)f.push('大きな失速要因は目立たない。今の良い流れを崩さないのが鍵');
+  return f;
+}
+
+/* ===== 匿名化 ===== */
+function anonymize(t,pairs,hideWords){
+  pairs.filter(p=>p.from).sort((a,b)=>b.from.length-a.from.length).forEach(p=>{t=t.split(p.from).join(p.to||'〇〇');});
+  hideWords.filter(Boolean).sort((a,b)=>b.length-a.length).forEach(w=>{t=t.split(w).join('〇〇');});
+  return t.replace(/https?:\/\/\S+/g,'[リンク]').replace(/[\w.+-]+@[\w-]+\.[\w.-]+/g,'[メール]').replace(/(^|[^\w])@[A-Za-z0-9_]{2,}/g,'$1[ID]').replace(/\d{2,4}-\d{2,4}-\d{3,4}/g,'[電話]').replace(/\b\d{4}[\/\-.]\d{1,2}[\/\-.]\d{1,2}\b/g,'[日付]');
+}
+function reconstruct(tl,partner,me,pairs,hideWords){
+  if(!tl.length)return '';
+  const pn=(pairs.find(p=>p.from===partner)||{}).to||'相手',mn=(pairs.find(p=>p.from===me)||{}).to||'自分';
+  return tl.map(t=>(t.who==='p'?pn:mn)+'：'+anonymize(t.msg,pairs,hideWords)).join('\n');
+}
+
+/* ===== 匿名化マッピングUI ===== */
+function addMap(from,to){
+  const d=document.createElement('div');d.className='maprow';
+  d.innerHTML='<input class="finput mfrom" placeholder="実名" value="'+(from||'')+'"><span class="arrow">→</span><input class="finput mto" placeholder="仮名" value="'+(to||'')+'"><button class="mini" onclick="this.parentNode.remove()">×</button>';
+  document.getElementById('maps').appendChild(d);
+}
+function getMaps(){return [...document.querySelectorAll('#maps .maprow')].map(r=>({from:r.querySelector('.mfrom').value.trim(),to:r.querySelector('.mto').value.trim()})).filter(p=>p.from);}
+
+/* ===== ファイル読み込み（端末内） ===== */
+function loadFile(input){const f=input.files&&input.files[0];if(!f)return;if(f.size>3*1024*1024){alert('3MBまで');input.value='';return;}const r=new FileReader();r.onload=()=>{document.getElementById('chat').value=String(r.result||'');document.getElementById('fileName').textContent='✓ '+f.name;};r.onerror=()=>alert('読み込み失敗');r.readAsText(f,'utf-8');}
+
+/* ===== 生成 ===== */
+const CHECKLIST=['実名・ID・アイコン・URLが残っていない','地名・店名・学校・職場が伏せてある','具体的な日時・珍しいイベント名を変えた','特徴的すぎる口癖を整えた','相手を悪者にする表現になっていない','「必ず」「絶対」など成果を保証する表現がない','操作・洗脳・依存化を促す表現がない','再構成・特定回避の注意書きを入れた','実スクショではなく再構成チャットを使っている'];
+function nextMod(w){if(w>=72)return '温度は高く、会う約束を具体化していい段階。';if(w>=50)return '脈はある。焦らず自然な流れで誘う。';if(w>=30)return 'まず楽しいやり取りで温度を上げてから誘う。';return '今は押さず、軽さで負担を減らすのが先。追いは逆効果。';}
+
+function generate(){
+  const partner=document.getElementById('pName').value.trim();
+  const me=document.getElementById('myName').value.trim();
+  const chat=document.getElementById('chat').value;
+  const memo=document.getElementById('memo').value.trim();
+  if(!partner){alert('相手の表示名を入力してください');return;}
+  if(chat.trim().length<20){alert('会話履歴を貼り付けてください');return;}
+  const pairs=getMaps();
+  const hideWords=document.getElementById('hide').value.split(/[,、]/).map(s=>s.trim()).filter(Boolean);
+  const tl=parseTurns(chat,partner,me);
+  const res=analyzeTurns(tl);
+  if(res.error){alert(res.error);return;}
+  const {code,warm}=compute(res.q),b=band(warm),pt=PT[code],fp=failPoints(res.q);
+
+  // ③ 推定
+  document.getElementById('estType').textContent=NAMES[code]+'（'+code+'）';
+  document.getElementById('estTrait').textContent=pt.trait;
+  document.getElementById('estWarm').textContent=b.e+' '+b.l+'　'+warm+'/100';
+  document.getElementById('estMark').style.left=warm+'%';
+  document.getElementById('estNote').innerHTML='相手 '+res.stats.msgs+'通／平均'+res.stats.avgLen+'字／絵文字率'+Math.round(res.stats.emoRate*100)+'%／質問率'+Math.round(res.stats.qRate*100)+'%'+(res.stats.hasTime?'／中央返信'+res.stats.medGap+'分':'／時刻なし')+(res.notes.length?'<br>※'+res.notes.join('／'):'');
+
+  // ④ 再構成チャット
+  document.getElementById('reChat').value=reconstruct(tl,partner,me,pairs,hideWords);
+
+  // ⑤ 分析下書き
+  const fpText=fp.map(x=>'・'+x).join('\n');
+  document.getElementById('reAnalysis').value=
+`【恋愛事故調査ファイル #__】
+
+■ 状況
+${anonymize(memo||'（状況を記入）',pairs,hideWords)}
+
+■ 相手の会話タイプ（推定）
+${NAMES[code]}（温度感 ${warm}/100・${b.l}）
+${pt.trait}
+
+■ 失速ポイント
+${fpText}
+
+■ 本来の返し方
+${pt.send}
+
+■ 送ると重くなる返信
+${pt.avoid}
+
+■ 次回の方針
+${pt.next}（${nextMod(warm)}）
+
+※本事例は相談内容をもとに、個人が特定されないよう一部改変・再構成しています。相手を批判する目的ではなく、会話のすれ違いを分析するためのケーススタディです。`;
+
+  // ⑥ X投稿下書き
+  const hook = warm<30?'そのメッセージ、相手の温度を下げているかもしれません。':(res.q[5]!==0?'会話は続くのに、なぜか会えない。理由は“会話タイプ”にあります。':'返信は来るのに距離が縮まらない時、見るべきは相手の“タイプ”。');
+  document.getElementById('rePost').value=
+`${hook}
+
+相手は【${NAMES[code]}】タイプ（温度${warm}/100）。
+${pt.send}
+
+逆にNGは——${pt.avoid}
+
+あなたの恋愛メッセージタイプ＆相手の返信タイプは？
+▶ 無料診断 #ラブチャット16`;
+
+  // ⑦ チェックリスト
+  document.getElementById('checks').innerHTML=CHECKLIST.map((c,i)=>'<label><input type="checkbox"> '+c+'</label>').join('');
+
+  document.getElementById('out').style.display='block';
+  document.getElementById('out').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function copyEl(id){const t=document.getElementById(id).value;navigator.clipboard?navigator.clipboard.writeText(t).then(()=>flash(id),()=>prompt('コピー',t)):prompt('コピー',t);}
+function flash(id){/* 簡易フィードバック */}
+function clearAll(){['memo','pName','myName','chat','hide','reChat','reAnalysis','rePost'].forEach(i=>{const e=document.getElementById(i);if(e)e.value='';});document.getElementById('maps').innerHTML='';addMap();addMap();document.getElementById('fileName').textContent='';document.getElementById('out').style.display='none';}
+
+/* 初期化 */
+addMap();addMap();
+</script>
+</body>
+</html>

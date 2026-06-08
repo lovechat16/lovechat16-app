@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- プライバシー保護：connect-src 'none' で外部送信を技術的に遮断。貼り付けた会話履歴は端末外へ一切出ない -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'">
+<title>相手の返信タイプ診断 ｜ ラブチャット16</title>
+<!-- OGP / Twitterカード ※公開時は og:image を絶対URL（https://ドメイン/assets/ogp.jpg）に置換 -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="相手の返信タイプ診断 ｜ ラブチャット16">
+<meta property="og:description" content="気になる相手のメッセージから、相手の会話タイプと“脈”の温度感を推定。送るべき返信・送ると重い返信・次の一手がわかる。">
+<meta property="og:image" content="assets/ogp.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="相手の返信タイプ診断 ｜ ラブチャット16">
+<meta name="twitter:description" content="相手の会話タイプと温度感を推定。送るべき返信もわかる。#ラブチャット16">
+<meta name="twitter:image" content="assets/ogp.jpg">
+<meta name="description" content="相手のメッセージ傾向から、相手の会話タイプと温度感を推定。送るべき返信・重い返信・次の一手がわかる。">
+<link rel="stylesheet" href="assets/lc16-result.css">
+<style>
+  :root{
+    --bg1:#1a1130; --bg2:#2b1645; --card:#2a1c44; --card2:#34245a;
+    --accent:#ff5d8f; --accent2:#a06bff; --text:#f4eeff; --muted:#b6a8d6;
+    --line:#473163; --ok:#5de0a8; --warn:#ffb86b;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;
+    background:linear-gradient(160deg,var(--bg1),var(--bg2));color:var(--text);min-height:100vh;line-height:1.7;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:560px;margin:0 auto;padding:24px 18px 64px}
+  .screen{display:none;animation:fade .35s ease}
+  .screen.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  @keyframes pop{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+  .badge{display:inline-block;font-size:12px;letter-spacing:.1em;color:var(--accent2);border:1px solid var(--line);border-radius:999px;padding:6px 14px;margin-bottom:18px}
+  h1{font-size:27px;line-height:1.3;margin:0 0 12px;font-weight:800}
+  h1 .hl{background:linear-gradient(120deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .lead{color:var(--muted);font-size:14px;margin:0 0 24px}
+  .btn{display:block;width:100%;border:0;cursor:pointer;font-weight:700;font-size:17px;color:#fff;
+    background:linear-gradient(120deg,var(--accent),var(--accent2));padding:17px;border-radius:14px;
+    transition:transform .12s,box-shadow .2s,opacity .2s;box-shadow:0 8px 24px rgba(255,93,143,.28)}
+  .btn:active{transform:scale(.98)}
+  .btn:disabled{opacity:.4;cursor:default;box-shadow:none}
+  .btn.sub{background:transparent;border:1px solid var(--line);color:var(--text);box-shadow:none;font-size:15px;font-weight:600}
+  .note{font-size:12px;color:var(--muted);margin-top:16px;text-align:center;line-height:1.6}
+  .nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;font-size:13px}
+  .nav a{color:var(--muted);text-decoration:none}
+
+  /* form */
+  .qgroup{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}
+  .qgroup.unfilled.hint{border-color:var(--warn)}
+  .qq{font-size:16px;font-weight:800;margin:0 0 12px}
+  .qq small{display:inline-block;font-weight:700;color:var(--accent2);font-size:12px;margin-right:8px}
+  .opt{display:flex;align-items:center;gap:12px;width:100%;text-align:left;cursor:pointer;background:var(--bg2);
+    border:1.5px solid var(--line);color:var(--text);border-radius:12px;padding:13px 14px;margin-bottom:9px;font-size:15px;font-weight:600;transition:.12s}
+  .opt:last-child{margin-bottom:0}
+  .opt:hover{border-color:var(--accent2)}
+  .opt.sel{border-color:var(--accent);background:var(--card2)}
+  .opt .mk{flex:0 0 22px;height:22px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:12px;color:transparent}
+  .opt.sel .mk{border-color:var(--accent);background:var(--accent);color:#fff}
+  .progress{height:6px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden;margin:6px 0 18px}
+  .progress>i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .3s}
+
+  /* result */
+  .hero{background:linear-gradient(165deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:22px;padding:24px 18px;text-align:center;margin-bottom:16px;position:relative;overflow:hidden}
+  .hero::before{content:"";position:absolute;inset:0;background:radial-gradient(120px 120px at 50% 0,rgba(255,93,143,.22),transparent)}
+  .hero>*{position:relative}
+  .heroMascot{width:140px;margin:0 auto 6px;filter:drop-shadow(0 8px 18px rgba(0,0,0,.35));animation:pop .5s ease}
+  .heroMascot img,.cv img{border-radius:18px}
+  .rcode{font-size:12px;letter-spacing:.3em;color:var(--accent2);font-weight:700}
+  .rchar{font-size:14px;color:var(--accent);font-weight:800;margin-top:4px}
+  .rname{font-size:25px;font-weight:800;margin:2px 0 8px}
+  .rtrait{color:var(--muted);font-size:14px;margin:0}
+  .gauge{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:14px}
+  .gauge .gtop{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
+  .gauge .gval{font-size:28px;font-weight:800}
+  .gauge .glabel{font-size:14px;font-weight:800}
+  .gtrack{height:14px;border-radius:999px;background:linear-gradient(90deg,#6fa8e0,#a06bff,#ff9a76,#ff5d8f);position:relative}
+  .gtrack .gmark{position:absolute;top:-4px;width:6px;height:22px;border-radius:3px;background:#fff;box-shadow:0 0 8px rgba(0,0,0,.5);transform:translateX(-3px)}
+  .gscale{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:6px}
+  .sec{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:12px}
+  .sec h3{margin:0 0 6px;font-size:13px;letter-spacing:.04em}
+  .sec p{margin:0;font-size:15px}
+  .sec.send h3{color:var(--ok)} .sec.avoid h3{color:var(--warn)} .sec.state h3,.sec.next h3{color:var(--accent2)}
+  .cta{margin-top:22px}.cta .btn{margin-bottom:12px}
+  .disc{font-size:11px;color:var(--muted);margin-top:20px;line-height:1.6;border-top:1px solid var(--line);padding-top:14px}
+  .privacy{background:rgba(93,224,168,.08);border:1px solid rgba(93,224,168,.35);border-radius:14px;padding:14px 16px;margin:0 0 18px;font-size:13px}
+  .privacy b{color:var(--ok)} .privacy ul{margin:8px 0 0;padding-left:18px;color:var(--muted)} .privacy li{margin-bottom:4px}
+  .privacy code{background:rgba(255,255,255,.08);padding:1px 5px;border-radius:5px;font-size:11px}
+  .flbl{display:block;font-size:13px;font-weight:700;color:var(--muted);margin:14px 0 6px}
+  .finput{width:100%;background:var(--card);border:1.5px solid var(--line);color:var(--text);border-radius:12px;padding:12px 14px;font-size:15px;font-family:inherit;line-height:1.6}
+  .finput:focus{outline:none;border-color:var(--accent2)}
+  textarea.finput{resize:vertical;min-height:120px;margin-bottom:14px}
+  .anote{background:rgba(160,107,255,.1);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:13px;color:var(--muted);margin-bottom:16px}
+  .anote b{color:var(--accent2)}
+  .filerow{display:flex;align-items:center;gap:10px;margin:0 0 10px;flex-wrap:wrap}
+  .filebtn{display:inline-block;cursor:pointer;font-size:14px;font-weight:700;color:var(--text);background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:9px 14px}
+  .filebtn:hover{border-color:var(--accent2)} .filebtn input{display:none}
+  .filename{font-size:12px;color:var(--ok)}
+  @media(max-width:420px){h1{font-size:24px}}
+  .desc-traits{margin:0;padding-left:18px}
+  .desc-traits li{margin-bottom:6px;font-size:15px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- INTRO -->
+  <section id="intro" class="screen active">
+    <div class="nav"><span class="badge">LOVECHAT 16 ｜ 相手診断</span><a href="index.html">自分の診断 →</a></div>
+    <h1>気になる相手の<br><span class="hl">返信タイプ</span>を読み解く</h1>
+    <p class="lead">相手のLINE、読み解きます。</p>
+    <button class="btn" onclick="show('form')">相手のタイプを読む →</button>
+    <button class="btn sub" style="margin-top:12px" onclick="show('paste')">📄 会話履歴から詳しく診断（端末内のみ）</button>
+    <p class="note">※この診断は相手の人格を断定するものではありません。現在のメッセージ/DM上の会話傾向を整理するためのものです。</p>
+  </section>
+
+  <!-- PASTE (会話履歴から自動推定・完全クライアントサイド) -->
+  <section id="paste" class="screen">
+    <div class="nav"><a href="#" onclick="show('intro');return false;">← もどる</a><span class="badge" style="margin:0">端末内だけで解析</span></div>
+    <h1 style="font-size:22px">会話履歴から<span class="hl">自動で推定</span></h1>
+    <div class="privacy">
+      <b>🔒 プライバシーについて</b>
+      <ul>
+        <li>貼り付けた会話は<b>この端末のブラウザ内だけ</b>で解析されます。</li>
+        <li>サーバーに<b>送信されず・保存もされません</b>（このページは外部送信できない設定＝CSP <code>connect-src 'none'</code>）。</li>
+        <li>解析後はテキストを<b>自動でクリア</b>します。心配なら解析後にページを閉じてください。</li>
+      </ul>
+    </div>
+    <label class="flbl">相手の表示名（履歴での名前）<span style="color:var(--warn)">*</span></label>
+    <input id="pName" class="finput" type="text" placeholder="例：はなこ / Hana など履歴に出る名前" autocomplete="off">
+    <label class="flbl">あなたの表示名（任意）</label>
+    <input id="myName" class="finput" type="text" placeholder="空欄でもOK（相手以外＝自分として扱います）" autocomplete="off">
+    <label class="flbl">会話履歴を貼り付け、またはファイルから読み込み</label>
+    <div class="filerow">
+      <label class="filebtn">📎 ファイルを選択
+        <input id="pFile" type="file" accept=".txt,.csv,.log,text/plain" onchange="loadFile(this)">
+      </label>
+      <span id="pFileName" class="filename"></span>
+    </div>
+    <textarea id="pText" class="finput" rows="8" placeholder="LINE等のトーク履歴をそのまま貼り付け、または上の「ファイルを選択」で .txt を読み込み（時刻付きだと返信速度も推定できます）"></textarea>
+    <button class="btn" onclick="runAnalyze()">この内容で推定する →</button>
+    <p class="note">推定はあくまで自動。次の画面で確認・修正してから診断できます。</p>
+  </section>
+
+  <!-- FORM -->
+  <section id="form" class="screen">
+    <div class="nav"><a href="#" onclick="show('intro');return false;">← もどる</a><span id="filled">0 / 7</span></div>
+    <div class="progress"><i id="pbar"></i></div>
+    <div id="anote" class="anote" style="display:none"></div>
+    <div id="qlist"></div>
+    <button class="btn" id="goBtn" onclick="diagnose()" disabled>相手のタイプを診断する</button>
+    <p class="note">思い当たる範囲でOK。直近1〜2週間のやり取りを思い浮かべて答えてください。</p>
+  </section>
+
+  <!-- RESULT -->
+  <section id="result" class="screen"></section>
+</div>
+
+<script src="chars.js"></script>
+<script src="chars-desc.js"></script>
+<script>
+/* ===== 相手診断 固有ロジック（キャラ表示系は chars.js） ===== */
+
+/* ===== 相手診断：入力（7問） ===== */
+/* 軸エンコード 'A2' = 極A に +2。warm=温度寄与。trend=温度トレンド。 */
+const INPUTS = [
+  {q:"相手から質問は来る？", opts:[
+    {t:"よく聞いてくる", ar:"A2", warm:15},
+    {t:"たまに来る",     ar:"A1", warm:8},
+    {t:"ほぼ来ない",     ar:"R2", warm:0}]},
+  {q:"返信の速さは？", opts:[
+    {t:"即〜数分が多い",   fs:"F2", warm:10},
+    {t:"数時間くらい",     fs:"S1", warm:5},
+    {t:"半日〜翌日が多い", fs:"S2", warm:0}]},
+  {q:"1通の文量は？", opts:[
+    {t:"長め・しっかり書く", dp:"D2", warm:10},
+    {t:"ふつう",            dp:"P1", warm:5},
+    {t:"短い・一言が多い",   dp:"P2", warm:0}]},
+  {q:"絵文字・笑・スタンプは？", opts:[
+    {t:"多い",     ec:"E2", warm:8},
+    {t:"ふつう",   ec:"E1", warm:4},
+    {t:"ほぼ無い", ec:"C2", warm:0}]},
+  {q:"相手から話題を振ってくる？", opts:[
+    {t:"よく振ってくる",   ar:"A2", warm:17},
+    {t:"たまに",           ar:"A1", warm:8},
+    {t:"ほぼ自分からだけ", ar:"R2", warm:0}]},
+  {q:"会う・予定の話への乗り方は？", opts:[
+    {t:"自分から提案 or 即乗る", ar:"A1", warm:25},
+    {t:"曖昧にかわす",          warm:8},
+    {t:"スルー・流す",          ar:"R1", warm:0}]},
+  {q:"最近の温度感の流れは？", opts:[
+    {t:"上がってきてる", warm:15, trend:"up"},
+    {t:"横ばい",         warm:5,  trend:"flat"},
+    {t:"下がってきてる", warm:-10, trend:"down"}]}
+];
+
+/* ===== 相手タイプ別ガイド（相手＝このタイプの時、あなたがどう返すか） ===== */
+const PT = {
+  AFED:{trait:"熱量高め・即レスでぐいぐい来る。好意は分かりやすいタイプ。",
+    send:"同じテンポと熱量で受け止め、感情に正直に返す。", avoid:"そっけない短文や既読放置（熱が一気に冷める）。", next:"勢いがあるうちに会う約束へ進める。"},
+  AFEP:{trait:"ノリと勢いで距離を詰める、軽快で楽しいタイプ。",
+    send:"ノリと絵文字で楽しく即レス。", avoid:"真面目すぎる長文や重い詰め。", next:"軽いノリのまま、さらっと誘いを通す。"},
+  AFCD:{trait:"感情は控えめでも、自分から核心を突いてくる誠実なタイプ。",
+    send:"駆け引きせず、中身で誠実に返す。", avoid:"絵文字を盛りすぎたり、軽く受け流すこと。", next:"こちらもストレートに予定を聞いてOK。"},
+  AFCP:{trait:"テンポ重視で、軽快にラリーを回すスマートなタイプ。",
+    send:"短めでテンポ良く、リズムを合わせる。", avoid:"重い長文や深掘りでテンポを止めること。", next:"軽いノリで会う流れを作る。"},
+  ASED:{trait:"返信は遅いが一通が濃い、内に熱を秘めたタイプ。",
+    send:"遅くても気持ちにしっかり応える。長文も歓迎。", avoid:"即レスの催促や、軽く流すこと。", next:"焦らず丁寧に距離を詰めてから誘う。"},
+  ASEP:{trait:"マイペースで甘え混じり、波のあるタイプ。",
+    send:"甘えを受け止め、相手のペースを許す。", avoid:"返信が遅いと責める・詰めること。", next:"プレッシャーなく、さりげなく誘う。"},
+  ASCD:{trait:"じっくり考え、深い話を好む落ち着いたタイプ。",
+    send:"中身のある返信＋自己開示で信頼を積む。", avoid:"テンポの催促や、薄い相槌だけで終わること。", next:"深い話の流れから自然に会う提案を。"},
+  ASCP:{trait:"感情を出さず余白を保つ、追わせるタイプ。",
+    send:"追わず余白を尊重し、軽めに返す。", avoid:"連投や重い好意（一気に引かれる）。", next:"さらっと誘って、引く余裕も見せる。"},
+  RFED:{trait:"自分からは振らないが、即レスで全力共感してくる受け身タイプ。",
+    send:"こちらから話題と質問を出してリードする。", avoid:"会話を丸投げしたり、そっけなくすること。", next:"こちらが主導して誘う。"},
+  RFEP:{trait:"ノリには全力で乗るが、自分からは動かない受け身タイプ。",
+    send:"話題やボケを振って盛り上げる。", avoid:"重い空気や、自分から動かないこと。", next:"楽しい流れのまま、こちらから誘う。"},
+  RFCD:{trait:"即レスで誠実、でも受け身で好意が表に出にくいタイプ。",
+    send:"こちらから話題を出し、誠実に重ねる。", avoid:"好意サインを待って放置すること。", next:"こちらから具体的に誘う。"},
+  RFCP:{trait:"即レスだが短く淡白、省エネな受け身タイプ。",
+    send:"軽く短く、深追いせずに続ける。", avoid:"長文や重い質問でプレッシャーをかけること。", next:"軽いノリの口実で会う流れを作る。"},
+  RSED:{trait:"遅いけれど深く受け止める、内省的な受け身タイプ。",
+    send:"遅くてOKと示し、深い話を投げてみる。", avoid:"即レス要求や、浅い話で終わること。", next:"焦らず、深い話の延長で誘う。"},
+  RSEP:{trait:"気まぐれで波があり、読みにくい受け身タイプ。",
+    send:"波に合わせ、来た時に楽しく返す。", avoid:"放置を責めたり、追いかけること。", next:"乗っている瞬間を逃さず、軽く誘う。"},
+  RSCD:{trait:"慎重に距離を測る、警戒心のある観察タイプ。",
+    send:"焦らず誠実に、安心感を積み重ねる。", avoid:"ガツガツした態度や、軽薄な印象。", next:"信頼が育ってから、慎重に誘う。"},
+  RSCP:{trait:"既読のまま淡白で、最も温度が見えにくいタイプ。",
+    send:"軽く負担なく、たまにこちらから振る。", avoid:"追いメッセージや重い好意（最も逃げる）。", next:"プレッシャーゼロで、さらっと誘う。"}
+};
+
+/* ===== 状態 ===== */
+const answers = new Array(INPUTS.length).fill(null);
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);}
+
+function buildForm(){
+  document.getElementById('qlist').innerHTML = INPUTS.map((it,qi)=>`
+    <div class="qgroup" id="qg${qi}">
+      <p class="qq"><small>Q${qi+1}</small>${it.q}</p>
+      ${it.opts.map((o,oi)=>`<button class="opt" onclick="pick(${qi},${oi})"><span class="mk">✓</span>${o.t}</button>`).join('')}
+    </div>`).join('');
+}
+function pick(qi,oi){
+  answers[qi]=oi;
+  const grp=document.getElementById('qg'+qi);
+  grp.classList.remove('unfilled','hint');
+  grp.querySelectorAll('.opt').forEach((b,i)=>b.classList.toggle('sel',i===oi));
+  const filled=answers.filter(a=>a!==null).length;
+  document.getElementById('filled').textContent=filled+' / 7';
+  document.getElementById('pbar').style.width=(filled/INPUTS.length*100)+'%';
+  document.getElementById('goBtn').disabled = filled<INPUTS.length;
+}
+
+function compute(){
+  const sc={A:0,R:0,F:0,S:0,E:0,C:0,D:0,P:0}; let warm=0, trend='flat';
+  answers.forEach((oi,qi)=>{
+    const o=INPUTS[qi].opts[oi];
+    ['ar','fs','ec','dp'].forEach(k=>{ if(o[k]){ sc[o[k][0]] += +o[k].slice(1); } });
+    warm += (o.warm||0); if(o.trend) trend=o.trend;
+  });
+  warm=Math.max(0,Math.min(100,warm));
+  const code=(sc.A>=sc.R?'A':'R')+(sc.F>=sc.S?'F':'S')+(sc.E>=sc.C?'E':'C')+(sc.D>=sc.P?'D':'P');
+  return {code, warm, trend, sc};
+}
+function band(w){
+  if(w>=72) return {emoji:'🔥', label:'かなり脈あり', state:'温度は高め。相手はあなたとのやり取りを楽しんでいる可能性が高い状態。'};
+  if(w>=50) return {emoji:'😊', label:'脈は十分・育成期', state:'好感触。関係はこれから温まる「育成期」。丁寧に積み重ねたい段階。'};
+  if(w>=30) return {emoji:'🤔', label:'まだ様子見', state:'温度はこれから。まだ判断は早く、楽しいやり取りで温度を上げていきたい段階。'};
+  return     {emoji:'🧊', label:'温度低下・要注意', state:'温度は低め。自然消滅しやすいゾーン。今は押すより、負担を減らすのが先。'};
+}
+function nextMove(w, trend, pt){
+  let base = pt.next;
+  let mod;
+  if(w>=72) mod = "温度は高い。会う約束を具体化していいタイミング。";
+  else if(w>=50) mod = "脈はある。焦らず自然な流れで会う提案を。";
+  else if(w>=30) mod = "誘いは急がず、まず楽しいやり取りで温度を上げてから。";
+  else mod = "今は誘いを急がない。軽さで負担を減らし、追いは逆効果。";
+  if(trend==='down') mod += "（最近は下降気味。一度ペースを落として様子を見るのも手）";
+  if(trend==='up' && w<72) mod += "（流れは上向き。良い兆し）";
+  return base + " " + mod;
+}
+
+function diagnose(){
+  if(answers.some(a=>a===null)){
+    answers.forEach((a,qi)=>{ if(a===null){ const g=document.getElementById('qg'+qi); g.classList.add('unfilled','hint'); }});
+    const first=document.querySelector('.qgroup.unfilled'); if(first) first.scrollIntoView({block:'center'});
+    return;
+  }
+  const {code,warm,trend}=compute();
+  LAST_PARTNER = {code, warm};
+  const pt=PT[code], ch=CHAR[code], b=band(warm);
+  const d = (typeof DESC !== 'undefined' && DESC[code]) || null;
+  const partnerDescHtml = d
+    ? '<div class="sec"><h3>相手の会話像</h3><p>' + d.intro + '</p></div>'
+      + '<div class="sec"><h3>このあるある、当てはまる？</h3><ul class="desc-traits">' + d.traits.map(function(tr){return '<li>'+tr+'</li>';}).join('') + '</ul></div>'
+    : '';
+  const markLeft=warm; // 0-100 → %
+  document.getElementById('result').innerHTML=`
+    <div class="nav"><a href="#" onclick="show('form');return false;">← 入力に戻る</a><a href="index.html">自分の診断 →</a></div>
+    <div class="hero">
+      <div class="heroMascot">${charVisual(code,140)}</div>
+      <div class="rcode">${code.split('').join(' ')}</div>
+      <div class="rchar">相手はたぶん…${ch.name} ${ch.emoji}</div>
+      <div class="rname">${NAMES[code]}</div>
+      <p class="rtrait">${pt.trait}</p>
+    </div>
+
+    ${partnerDescHtml}
+    <div class="gauge">
+      <div class="gtop"><span class="glabel">${b.emoji} ${b.label}</span><span class="gval">${warm}<span style="font-size:14px;color:var(--muted)">/100</span></span></div>
+      <div class="gtrack"><div class="gmark" style="left:${markLeft}%"></div></div>
+      <div class="gscale"><span>冷</span><span>様子見</span><span>育成</span><span>脈あり</span></div>
+    </div>
+
+    <div class="sec state"><h3>いまの関係状態</h3><p>${b.state}</p></div>
+    <div class="sec send"><h3>◎ 送るべき返信方針</h3><p>${pt.send}</p></div>
+    <div class="sec avoid"><h3>△ 送ると重い返信</h3><p>${pt.avoid}</p></div>
+    <div class="sec next"><h3>▶ 次の一手</h3><p>${nextMove(warm,trend,pt)}</p></div>
+
+    <div class="cta">
+      <button class="btn" onclick="sharePartnerImage()">📸 結果画像を保存してシェア</button>
+      <button class="btn sub" onclick="alert('近日公開：ラブチャット16 返信設計ガイド（タイプ別の返し方・誘い方・追い判断）')">タイプ別・返信設計ガイドを見る →</button>
+      <button class="btn sub" onclick="location.href='index.html'">自分のメッセージタイプも診断する →</button>
+      <button class="btn sub" onclick="resetAll()">別の相手をもう一度診断する</button>
+    </div>
+    ${adCard()}
+    <p class="disc">※本診断は相手の人格を断定するものではなく、現在のメッセージ/DM上の会話傾向と温度感を推定するものです。「必ず会える」「絶対に脈あり」といった成果を保証するものではありません。人を操るためではなく、すれ違いを減らすための会話分析です。</p>
+  `;
+  show('result');
+  upgradeCharVisuals(document.getElementById('result'));
+}
+function resetAll(){ answers.fill(null); buildForm(); document.getElementById('anote').style.display='none'; document.getElementById('filled').textContent='0 / 7'; document.getElementById('pbar').style.width='0%'; document.getElementById('goBtn').disabled=true; show('form'); }
+
+/* 相手診断の結果カード画像 */
+let LAST_PARTNER = null;
+function sharePartnerImage(){
+  if(!LAST_PARTNER) return;
+  const {code, warm} = LAST_PARTNER, b = band(warm);
+  const bars = [{ left:'温度感 '+b.emoji, right:warm+'/100', aWin:true, aShare:warm }];
+  const txt = `気になる相手の返信タイプは【${NAMES[code]}】${CHAR[code].emoji} 温度感${warm}/100\n相手の返信タイプを診断▶ #ラブチャット16`;
+  shareResultImage(code, { bars, catch:PT[code].trait, charLabel:'相手はたぶん…', footer:'相手の返信タイプ、診断してみる？ #ラブチャット16' }, txt);
+}
+
+/* ===== 会話履歴の自動解析（完全クライアントサイド／送信・保存なし） ===== */
+const EMOJI_RE = /\p{Extended_Pictographic}/u;
+function analyzeChat(text, partner, me){
+  const lines = text.split(/\r?\n/);
+  const timeRe = /(\d{1,2}):(\d{2})/;
+  function spk(name){ if(!name) return null; name=name.trim(); if(partner && name.includes(partner)) return 'p'; if(me && name.includes(me)) return 'm'; return 'm'; }
+  const tl=[]; let last=null, dayBase=0;
+  for(let raw of lines){
+    let line=raw.replace(/‎/g,'').trim(); if(!line) continue;
+    if(/^\d{4}[\/\-.]\d{1,2}[\/\-.]\d{1,2}/.test(line) || /^\d{1,2}月\d{1,2}日/.test(line)){ dayBase+=1440; last=null; continue; }
+    let who=null, msg=line, tmin=null;
+    if(line.includes('\t')){
+      const p=line.split('\t').map(s=>s.trim()).filter(s=>s.length);
+      if(p.length>=3 && timeRe.test(p[0])){ const m=p[0].match(timeRe); tmin=dayBase+(+m[1])*60+(+m[2]); who=spk(p[1]); msg=p.slice(2).join(' '); }
+      else if(p.length===2){ who=spk(p[0]); msg=p[1]; }
+    }
+    if(who===null){ const cm=line.match(/^([^:：\t]{1,24})[:：]\s*(.*)$/); if(cm && cm[2]!==''){ who=spk(cm[1]); msg=cm[2]; } }
+    if(who===null){ const tm=line.match(/^(\d{1,2}):(\d{2})\s+(\S+)\s+(.*)$/); if(tm){ tmin=dayBase+(+tm[1])*60+(+tm[2]); who=spk(tm[3]); msg=tm[4]; } }
+    if(who===null){ who=last; } // 継続行
+    if(who===null) continue;
+    tl.push({who,t:tmin,msg}); last=who;
+  }
+  const P=tl.filter(x=>x.who==='p'), all=tl.length;
+  const notes=[];
+  if(P.length<3){ return {error:'相手のメッセージをうまく取り出せませんでした。相手の表示名が履歴と一致しているか確認してください。'}; }
+
+  // 文量 → D/P
+  const avgLen = P.reduce((s,x)=>s+x.msg.length,0)/P.length;
+  // 絵文字・笑 → E/C
+  const emoRate = P.filter(x=>EMOJI_RE.test(x.msg)||/[wｗ]{1,}$|笑|！|!{1,}|w$/.test(x.msg)).length/P.length;
+  // 質問 → A/R + 温度
+  const qRate = P.filter(x=>/[?？]/.test(x.msg)).length/P.length;
+  // 返信速度（自分→相手 の間隔, 分）
+  const gaps=[]; for(let i=1;i<tl.length;i++){ if(tl[i].who==='p'&&tl[i-1].who==='m'&&tl[i].t!=null&&tl[i-1].t!=null){ const g=tl[i].t-tl[i-1].t; if(g>=0&&g<=720) gaps.push(g); } }
+  const hasTime = gaps.length>0;
+  const medGap = hasTime ? gaps.slice().sort((a,b)=>a-b)[Math.floor(gaps.length/2)] : null;
+  // 会話の口火（バースト開始）を相手が切る割合
+  let opens=0, pOpens=0; for(let i=0;i<tl.length;i++){ const prev=tl[i-1]; const gap=(prev&&tl[i].t!=null&&prev.t!=null)?tl[i].t-prev.t:null; const isOpen = !prev || prev.who!==tl[i].who && (gap===null||gap>60) || (gap!=null&&gap>180); if(isOpen){ opens++; if(tl[i].who==='p') pOpens++; } }
+  const pOpenRate = opens? pOpens/opens : qRate;
+  // 会う・予定キーワード
+  const meetRe=/(会|行こ|行きたい|会いたい|予定|いつ|空いて|都合|デート|ご飯|ごはん|飯|飲|遊|どこ行|来週|今度)/;
+  const coolRe=/(忙し|今度ね|また今度|考え|わからな|微妙|無理|きつい)/;
+  const pMeet=P.filter(x=>meetRe.test(x.msg)); const pMeetCool=pMeet.filter(x=>coolRe.test(x.msg));
+  // トレンド（前半 vs 後半の温度シグナル）
+  const half=Math.floor(P.length/2);
+  const warmth = arr=>{ if(!arr.length) return 0; const e=arr.filter(x=>EMOJI_RE.test(x.msg)||/笑|！|!/.test(x.msg)).length/arr.length; const l=arr.reduce((s,x)=>s+x.msg.length,0)/arr.length; const q=arr.filter(x=>/[?？]/.test(x.msg)).length/arr.length; return e*40 + Math.min(l,40) + q*30; };
+  const w1=warmth(P.slice(0,half)), w2=warmth(P.slice(half)); const trendDelta=w2-w1;
+
+  // → 7信号にマッピング（option index）
+  const q=[];
+  q[0]= qRate>=0.25?0 : qRate>=0.08?1 : 2;                 // Q1 質問
+  if(hasTime){ q[1]= medGap<15?0 : medGap<180?1 : 2; } else { q[1]=1; notes.push('返信速度は履歴に時刻が無く推定できないため「数時間」と仮置き。'); } // Q2 速度
+  q[2]= avgLen>=35?0 : avgLen>=14?1 : 2;                   // Q3 文量
+  q[3]= emoRate>=0.4?0 : emoRate>=0.12?1 : 2;              // Q4 絵文字
+  q[4]= (pOpenRate>=0.45||qRate>=0.25)?0 : (pOpenRate>=0.2||qRate>=0.08)?1 : 2; // Q5 話題ふり
+  if(pMeet.length===0){ q[5]=1; notes.push('会う・予定の話が見当たらないため「曖昧」と仮置き。'); } // Q6 予定
+  else { q[5]= pMeetCool.length/pMeet.length<=0.4 ? 0 : 1; }
+  q[6]= trendDelta>8?0 : trendDelta<-8?2 : 1;              // Q7 トレンド
+
+  return {q, notes, stats:{msgs:P.length, avgLen:Math.round(avgLen), emoRate:+(emoRate.toFixed(2)), qRate:+(qRate.toFixed(2)), medGap, hasTime}};
+}
+
+/* ファイルから読み込み（FileReader＝端末内のみ。送信なし） */
+function loadFile(input){
+  const f=input.files&&input.files[0]; if(!f) return;
+  if(f.size>3*1024*1024){ alert('ファイルが大きすぎます（3MBまで）'); input.value=''; return; }
+  const r=new FileReader();
+  r.onload=()=>{ document.getElementById('pText').value=String(r.result||''); document.getElementById('pFileName').textContent='✓ '+f.name+'（端末内で読込）'; };
+  r.onerror=()=>{ alert('ファイルを読めませんでした。テキスト(.txt)を選んでください'); };
+  r.readAsText(f,'utf-8');
+}
+
+function runAnalyze(){
+  const partner=document.getElementById('pName').value.trim();
+  let text=document.getElementById('pText').value;
+  if(!partner){ alert('相手の表示名を入力してください（履歴に出てくる名前）'); return; }
+  if(text.trim().length<20){ alert('会話履歴をもう少し貼り付けてください'); return; }
+  const me=document.getElementById('myName').value.trim();
+  const res = analyzeChat(text, partner, me);
+  // プライバシー：解析が終わったら即座にテキスト・ファイル情報を破棄
+  text=null;
+  document.getElementById('pText').value=''; document.getElementById('pName').value=''; document.getElementById('myName').value='';
+  const fileEl=document.getElementById('pFile'); if(fileEl) fileEl.value=''; document.getElementById('pFileName').textContent='';
+  if(res.error){ alert(res.error); show('paste'); return; }
+  res.q.forEach((oi,qi)=>pick(qi,oi));
+  const an=document.getElementById('anote');
+  an.style.display='block';
+  an.innerHTML='<b>履歴から自動入力しました。</b>気になる項目は直してから診断してください。'
+    + (res.notes.length?'<br>'+res.notes.map(n=>'・'+n).join('<br>'):'')
+    + `<br><span style="opacity:.7">（相手 ${res.stats.msgs}通／平均 ${res.stats.avgLen}字／絵文字率 ${Math.round(res.stats.emoRate*100)}%／質問率 ${Math.round(res.stats.qRate*100)}%${res.stats.hasTime?'／中央返信 '+res.stats.medGap+'分':'／時刻なし'}）</span>`;
+  show('form');
+}
+
+buildForm();
+</script>
+</body>
+</html>
