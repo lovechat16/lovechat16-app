@@ -384,7 +384,7 @@ function renderResult(code, score){
 
   const g = t.good, b = t.bad, ch = CHAR[code];
   const rar = rarityFor(code, (typeof localTally==='function' ? localTally().tally : {}));
-  const shareUrl = 'https://lovechat16.github.io/lovechat16-app/r/' + code + '.html?t=' + Date.now();
+  const shareUrl = 'https://lovechat16.github.io/lovechat16-app/share/' + code + '.html';
   const shareText = `${ch.emoji}私のメッセージタイプは【${NAMES[code]}／会話キャラは${ch.name}】\n${rar.starStr} 推定${rar.oneIn}人に1人の${rar.label}！\nあなたは？診断▶ #ラブチャット16\n${shareUrl}`;
   /* chars-desc.js が読み込まれていればリッチな結果文章、なければ既存テキストにフォールバック */
   const descHtml = d
