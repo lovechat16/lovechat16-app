@@ -73,12 +73,12 @@
   .opt .mark{flex:0 0 26px;height:26px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:13px;color:transparent}
   .opt.sel .mark{border-color:var(--accent);background:var(--accent);color:#fff}
   .qnav{display:flex;justify-content:space-between;margin-top:8px}
-  .lnk{background:none;border:0;color:var(--muted);font-size:14px;cursor:pointer;padding:8px 4px}
+  .lnk{background:none;border:0;color:var(--muted);font-size:14px;cursor:pointer;padding:12px 12px;min-height:44px;display:inline-flex;align-items:center}
   .lnk:disabled{opacity:.3;cursor:default}
 
   /* ---- Result ---- */
   .rcode{font-size:13px;letter-spacing:.3em;color:var(--accent2);font-weight:700}
-  .rname{font-size:30px;font-weight:800;margin:6px 0 6px}
+  .rname{font-size:38px;font-weight:800;margin:6px 0 6px}
   .rcatch{color:var(--muted);font-size:15px;margin:0 0 24px;font-style:italic}
   .bars{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:22px}
   .bar{margin-bottom:16px}
@@ -103,12 +103,14 @@
   .disc{font-size:11px;color:var(--muted);margin-top:22px;line-height:1.6;border-top:1px solid var(--line);padding-top:16px}
   /* ---- Characters / Mascots ---- */
   .introChars{display:flex;justify-content:center;gap:2px;margin:0 0 26px;flex-wrap:wrap}
-  .introChars svg{width:52px;height:52px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.25))}
+  .introChars svg,.introChars img{width:72px;height:72px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.25));opacity:0;animation:charIn .4s ease forwards}
+  @keyframes charIn{from{transform:translateY(12px) scale(.85);opacity:0}to{transform:none;opacity:1}}
+  @media(prefers-reduced-motion:reduce){.introChars svg,.introChars img{animation:none;opacity:1}}
   .hero{background:linear-gradient(165deg,var(--card2),var(--card));border:1px solid var(--line);
     border-radius:22px;padding:26px 18px 22px;text-align:center;margin-bottom:18px;position:relative;overflow:hidden}
   .hero::before{content:"";position:absolute;inset:0;background:radial-gradient(120px 120px at 50% 0,rgba(255,93,143,.22),transparent)}
   .hero > *{position:relative}
-  .heroMascot{width:150px;height:150px;margin:0 auto 6px;filter:drop-shadow(0 8px 18px rgba(0,0,0,.35));animation:pop .5s ease}
+  .heroMascot{width:220px;height:220px;margin:0 auto 6px;filter:drop-shadow(0 8px 18px rgba(0,0,0,.35));animation:pop .5s ease}
   @keyframes pop{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
   .charname{font-size:15px;color:var(--accent);font-weight:800;letter-spacing:.06em}
   .rarity{margin-top:12px;display:inline-block;font-size:12.5px;font-weight:700;color:#ffd36b;background:rgba(255,211,107,.1);border:1px solid rgba(255,211,107,.35);border-radius:999px;padding:6px 14px}
@@ -154,12 +156,11 @@
     <p class="lead">返信の速さ・重さ・熱量・深さ。<br>20問で会話グセを16タイプに当てます。</p>
     <div id="introChars" class="introChars" aria-hidden="true"></div>
     <div class="meta">
-      <span class="chip">💞 16キャラ判定</span>
-      <span class="chip">⏱ 約90秒</span>
-      <span class="chip">📝 全20問</span>
-      <span class="chip">🔒 入力内容は外部に送信されません</span>
+      <span class="chip">16キャラ判定</span>
+      <span class="chip">約90秒</span>
+      <span class="chip">全20問</span>
+      <span class="chip">入力内容は外部に送信されません</span>
     </div>
-    <p class="btn-hint">▼ タップして診断スタート</p>
     <button class="btn" onclick="start()">あなたのタイプを見る →</button>
     <p class="note">※この診断は人格を断定するものではなく、現在のメッセージ/DM上の会話傾向を整理するためのものです。</p>
   </section>
@@ -397,8 +398,8 @@ function renderResult(code, score){
     </div>
 
     <div class="cta">
-      <button class="btn" onclick="shareImage()">📸 結果画像を保存してシェア</button>
-      <button class="btn sub" onclick="shareX('${escapeJs(shareText)}','${shareUrl}')">𝕏 にテキストでシェア</button>
+      <button class="btn" onclick="shareX('${escapeJs(shareText)}','${shareUrl}')">𝕏 にシェアする</button>
+      <button class="btn sub" onclick="shareImage()">📸 結果画像を保存</button>
       <button class="btn sub" onclick="location.href='partner.html'">相手の返信タイプも診断する →</button>
       <button class="btn sub" onclick="restart()">もう一度診断する</button>
     </div>
@@ -476,7 +477,10 @@ function shareImage(){
 (function initIntro(){
   const picks = ['AFED','RFEP','ASEP','RFCD','RSED','AFCP','RSCP','ASCD'];
   const el = document.getElementById('introChars');
-  if(el){ el.innerHTML = picks.map(c => charVisual(c, 56)).join(''); upgradeCharVisuals(el); }
+  if(!el) return;
+  el.innerHTML = picks.map(c => charVisual(c, 72)).join('');
+  upgradeCharVisuals(el);
+  el.querySelectorAll('svg,img').forEach((s,i) => { s.style.animationDelay = (i * 40) + 'ms'; });
 })();
 </script>
 </body>
