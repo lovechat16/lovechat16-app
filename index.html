@@ -360,7 +360,7 @@ function renderResult(code, score){
   const g = t.good, b = t.bad, ch = CHAR[code];
   const rar = rarityFor(code, (typeof localTally==='function' ? localTally().tally : {}));
   const shareUrl = 'https://lovechat16.github.io/lovechat16-app/r/' + code + '.html';
-  const shareText = `${ch.emoji}私のメッセージタイプは【${NAMES[code]}／会話キャラは${ch.name}】\n${rar.starStr} 推定${rar.oneIn}人に1人の${rar.label}！\nあなたは？診断▶ #ラブチャット16`;
+  const shareText = `${ch.emoji}私のメッセージタイプは【${NAMES[code]}／会話キャラは${ch.name}】\n${rar.starStr} 推定${rar.oneIn}人に1人の${rar.label}！\nあなたは？診断▶ #ラブチャット16\n${shareUrl}`;
   /* chars-desc.js が読み込まれていればリッチな結果文章、なければ既存テキストにフォールバック */
   const descHtml = d
     ? '<p class="desc-intro">'+d.intro+'</p>'
@@ -398,7 +398,7 @@ function renderResult(code, score){
     </div>
 
     <div class="cta">
-      <button class="btn" onclick="shareX('${escapeJs(shareText)}','${shareUrl}')">𝕏 にシェアする</button>
+      <button class="btn" onclick="shareX('${escapeJs(shareText)}')">𝕏 にシェアする</button>
       <button class="btn sub" onclick="shareImage()">📸 結果画像を保存</button>
       <button class="btn sub" onclick="location.href='partner.html'">相手の返信タイプも診断する →</button>
       <button class="btn sub" onclick="restart()">もう一度診断する</button>
@@ -450,8 +450,8 @@ function renderResult(code, score){
 /* ===== ユーティリティ ===== */
 function escapeAttr(s){ return String(s).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c])); }
 function escapeJs(s){ return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,'\\n'); }
-function shareX(text,url){
-  const u='https://twitter.com/intent/tweet?text='+encodeURIComponent(text)+'&url='+encodeURIComponent(url);
+function shareX(text){
+  const u='https://twitter.com/intent/tweet?text='+encodeURIComponent(text);
   window.open(u,'_blank');
 }
 function copyShare(text){
