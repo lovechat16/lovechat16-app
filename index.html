@@ -144,6 +144,31 @@
   .btn-hint{font-size:11px;text-align:center;color:var(--muted);margin-bottom:8px;letter-spacing:.04em;opacity:.75}
   /* introChars ラッパーに shimmer overflow 防止 */
   #introChars{overflow:visible}
+
+  /* ---- Cycling headline animation (Hero.tsx ポート) ---- */
+  /* framer-motion の spring を CSS cubic-bezier(0.34,1.56,0.64,1) で近似 */
+  .hl-cycle-wrap{display:block;position:relative;height:1.35em;overflow:hidden;margin-top:2px}
+  .hl-cycle-item{
+    position:absolute;left:0;
+    background:linear-gradient(120deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    transform:translateY(110%);opacity:0;
+    transition:transform .55s cubic-bezier(0.34,1.56,0.64,1),opacity .4s ease;
+    white-space:nowrap;font-weight:800;
+  }
+  .hl-cycle-item[data-state="active"]{transform:translateY(0);opacity:1}
+  .hl-cycle-item[data-state="above"]{transform:translateY(-110%);opacity:0}
+  @media(prefers-reduced-motion:reduce){.hl-cycle-item{transition:none}}
+
+  /* ---- body 背景グロー (Hero の動画+オーバーレイを CSS 再現) ---- */
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;
+    background:
+      radial-gradient(ellipse 80vw 50vh at 50% -5%,rgba(255,93,143,.13),transparent),
+      radial-gradient(ellipse 60vw 70vh at 85% 100%,rgba(160,107,255,.10),transparent);
+    z-index:0;
+  }
+  .wrap{position:relative;z-index:1}
 </style>
 </head>
 <body>
@@ -152,7 +177,7 @@
   <!-- INTRO -->
   <section id="intro" class="screen active">
     <span class="badge">💬 LOVECHAT 16 ｜ 恋愛メッセージ診断</span>
-    <h1>あなたの恋愛LINE、<br><span class="hl">全部バレます。</span></h1>
+    <h1>あなたの恋愛LINE、<span class="hl-cycle-wrap" aria-label="全部バレます。"><span class="hl-cycle-item">全部バレます。</span><span class="hl-cycle-item">16タイプに当てます。</span><span class="hl-cycle-item">すれ違いが見える。</span></span></h1>
     <p class="lead">返信の速さ・重さ・熱量・深さ。<br>20問で会話グセを16タイプに当てます。</p>
     <div id="introChars" class="introChars" aria-hidden="true"></div>
     <div class="meta">
@@ -472,6 +497,23 @@ function shareImage(){
   const txt = `私の恋愛メッセージタイプは【${NAMES[code]}／${CHAR[code].name}】${CHAR[code].emoji}\n${rar.starStr} 推定${rar.oneIn}人に1人の${rar.label}！\nあなたは？無料診断▶ #ラブチャット16`;
   shareResultImage(code, { bars, catch:CATCH[code], rarity:`${rar.starStr} ${rar.label}・${rar.oneIn}人に1人` }, txt);
 }
+
+/* Cycling headline (ポート元: my-website/components/Hero.tsx)
+   framer-motion の titleNumber === index ? y:0 : titleNumber > index ? y:-150 : y:150 をそのまま移植 */
+(function initCyclingHeadline(){
+  const items = document.querySelectorAll('.hl-cycle-item');
+  if(!items.length) return;
+  let idx = 0;
+  function update(){
+    items.forEach(function(el,i){
+      el.dataset.state = idx===i ? 'active' : idx>i ? 'above' : 'below';
+    });
+  }
+  update();
+  if(!window.matchMedia('(prefers-reduced-motion:reduce)').matches){
+    setInterval(function(){ idx=(idx+1)%items.length; update(); }, 2500);
+  }
+})();
 
 /* イントロのマスコット列（複数キャラを見せて期待感を作る） */
 (function initIntro(){
