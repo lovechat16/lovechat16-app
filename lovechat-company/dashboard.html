@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>♥ ラブチャット16 Company Dashboard</title>
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+
+<div class="scanlines" aria-hidden="true"></div>
+
+<div class="app">
+
+  <!-- ══ Top Bar ═══════════════════════════════════════════════ -->
+  <header class="topbar">
+    <div class="tb-brand">
+      <span class="tb-hearts">♥♥♥</span>
+      <div class="tb-brand-text">
+        <span class="tb-name">Lovechat Company</span>
+        <span class="tb-sub">AI Workforce Dashboard</span>
+      </div>
+    </div>
+    <div class="tb-chips">
+      <div class="tbchip chip-green"><span class="chip-dot"></span>COMPANY STATUS: <strong id="cs-text">—</strong></div>
+      <div class="tbchip chip-yellow">⚡ TEAM ENERGY: <strong id="te-text">—</strong></div>
+      <div class="tbchip chip-pink">👤 ACTIVE: <strong id="active-count">—</strong></div>
+      <div class="tbchip chip-purple">📋 AGENTS: <strong id="task-count">—</strong></div>
+    </div>
+    <div class="tb-right">
+      <div class="tb-time" id="tb-time">--:--:--</div>
+      <div class="tb-date" id="tb-date"></div>
+    </div>
+  </header>
+
+  <!-- ══ App Body ═══════════════════════════════════════════════ -->
+  <div class="app-body">
+
+    <!-- Left Sidebar -->
+    <nav class="sidebar" id="sidebar">
+      <button class="sb-btn active" data-target="sec-floor" title="Office Floor">🏢</button>
+      <button class="sb-btn" data-target="sec-progress" title="Progress">📈</button>
+      <button class="sb-btn" data-target="sec-log" title="Activity Log">📡</button>
+      <button class="sb-btn" data-target="sec-report" title="Reports">📄</button>
+    </nav>
+
+    <!-- Main Area -->
+    <main class="main" id="main">
+
+      <!-- ── Office Floor ─────────────────────────────────────── -->
+      <section id="sec-floor">
+        <div class="floor-header">
+          <span class="floor-hq">♥ LOVECHAT HQ &nbsp;/&nbsp; FLOOR 3</span>
+          <span class="floor-badge blink" id="fl-badge">● AI SYSTEMS GO</span>
+          <span class="floor-updated" id="fl-updated">最終更新: —</span>
+        </div>
+        <div class="floor-area">
+          <!-- Today's Goals -->
+          <div class="goals-card" id="goals-card">
+            <div class="goals-head">TODAY'S GOALS</div>
+            <div class="goals-list" id="goals-list">
+              <div class="goal-item">□ ダッシュボード完成</div>
+              <div class="goal-item">□ GitHub Pages公開</div>
+              <div class="goal-item">□ OGP確認 ♥</div>
+            </div>
+          </div>
+          <!-- Agent Desk Grid -->
+          <div class="office-grid" id="office-grid">
+            <!-- Rendered by dashboard.js -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Progress Timeline ────────────────────────────────── -->
+      <section id="sec-progress">
+        <div class="sec-header">
+          <span class="sec-arr">▶</span>PROGRESS TIMELINE
+          <span class="sprint-badge" id="sprint-badge">SPRINT —</span>
+        </div>
+        <div class="sprint-timeline" id="sprint-timeline"></div>
+        <div class="progress-totals" id="progress-totals"></div>
+      </section>
+
+      <!-- ── Activity Log ─────────────────────────────────────── -->
+      <section id="sec-log">
+        <div class="sec-header">
+          <span class="sec-arr">▶</span>ACTIVITY LOG
+          <span class="live-badge blink">● LIVE</span>
+        </div>
+        <div class="log-feed" id="log-feed"></div>
+      </section>
+
+      <!-- ── Reports ──────────────────────────────────────────── -->
+      <section id="sec-report">
+        <div class="sec-header">
+          <span class="sec-arr">▶</span>REPORTS
+          <span id="report-updated" class="rp-upd-badge">読込中...</span>
+        </div>
+        <div class="rtabs" id="report-tabs">
+          <button class="rtab active" data-report="daily">📋 日次</button>
+          <button class="rtab" data-report="dept-01">🔍 01</button>
+          <button class="rtab" data-report="dept-02">✍️ 02</button>
+          <button class="rtab" data-report="dept-03">📱 03</button>
+          <button class="rtab" data-report="dept-04">🎨 04</button>
+          <button class="rtab" data-report="dept-05">📦 05</button>
+          <button class="rtab" data-report="dept-06">🎯 06</button>
+          <button class="rtab" data-report="dept-07">⚙️ 07</button>
+          <button class="rtab" data-report="dept-08">🎭 08</button>
+          <button class="rtab" data-report="dept-09">✏️ 09</button>
+          <button class="rtab" data-report="dept-10">🔎 10</button>
+        </div>
+        <div class="report-body" id="report-body"></div>
+      </section>
+
+    </main>
+
+    <!-- Right Panel -->
+    <aside class="rpanel">
+
+      <!-- CEO Alert -->
+      <div class="rp-alert" id="rp-alert" style="display:none">
+        <div class="rpa-title">🚨 CEO ATTENTION</div>
+        <div id="rpa-body"></div>
+      </div>
+
+      <!-- Agent Task List -->
+      <div class="rp-block">
+        <div class="rp-hd">
+          AGENT TASKS
+          <span class="rp-cnt" id="rp-cnt">—</span>
+        </div>
+        <div class="rp-list" id="rp-list"></div>
+      </div>
+
+      <!-- Today's Impact -->
+      <div class="rp-block rp-impact-block">
+        <div class="rp-hd">TODAY'S IMPACT</div>
+        <div class="impact-grid" id="impact-grid">
+          <div class="imp-cell"><div class="imp-n" id="imp-created">—</div><div class="imp-l">CREATED</div></div>
+          <div class="imp-cell"><div class="imp-n" id="imp-modified">—</div><div class="imp-l">MODIFIED</div></div>
+          <div class="imp-cell"><div class="imp-n" id="imp-done">—</div><div class="imp-l">DONE</div></div>
+          <div class="imp-cell"><div class="imp-n" id="imp-sprints">—</div><div class="imp-l">SPRINTS</div></div>
+        </div>
+        <div class="impact-quote">Building the future,<br>one conversation at a time. ♥</div>
+      </div>
+
+    </aside>
+  </div>
+
+  <!-- ══ Mobile Bottom Nav ═══════════════════════════════════ -->
+  <nav class="mobile-nav" id="mobile-nav">
+    <button class="mn-btn active" onclick="mobileSec('sec-floor')"><span>🏢</span><span>FLOOR</span></button>
+    <button class="mn-btn" onclick="mobileSec('sec-progress')"><span>📈</span><span>PROGRESS</span></button>
+    <button class="mn-btn" onclick="mobileSec('sec-log')"><span>📡</span><span>LOG</span></button>
+    <button class="mn-btn" onclick="mobileSec('sec-report')"><span>📄</span><span>REPORTS</span></button>
+  </nav>
+
+</div>
+
+<!-- Error Modal -->
+<div class="modal-overlay" id="error-modal" style="display:none" role="dialog" aria-modal="true">
+  <div class="modal-box">
+    <div class="modal-title">⚠ ローカルサーバーが必要です</div>
+    <div class="modal-body">
+      <p>プロジェクトルートのターミナルで：</p>
+      <div class="code-block">node server.js</div>
+      <p>その後：</p>
+      <div class="code-block">http://localhost:3000/dashboard</div>
+    </div>
+    <button class="modal-close" onclick="document.getElementById('error-modal').style.display='none'">閉じる</button>
+  </div>
+</div>
+
+<script src="dashboard.js"></script>
+</body>
+</html>

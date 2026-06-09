@@ -1,0 +1,136 @@
+/* ============================================================
+   lc16-result.css
+   ラブチャット16 結果ページ UI 改善スタイル
+
+   適用方法: index.html の </head> 直前に追加
+   <link rel="stylesheet" href="lc16-result.css">
+
+   ※ index.html の既存スタイルを上書きする形で適用
+   ※ JS ロジックは一切変更していない
+   ============================================================ */
+
+/* ── 1. キャッチコピーを主役に格上げ ─────────────────────── */
+/* 「刺さる一言」が最も目立つべき行 */
+.rcatch {
+  font-size: 19px !important;
+  font-style: normal !important;
+  font-weight: 700 !important;
+  color: var(--text) !important;
+  line-height: 1.55 !important;
+  margin: 0 0 28px !important;
+  letter-spacing: 0.02em;
+}
+
+/* キャッチコピーの前後に装飾ライン（占いカード感を演出） */
+.rcatch::before {
+  content: "── ";
+  color: var(--accent);
+  opacity: 0.55;
+}
+
+.rcatch::after {
+  content: " ──";
+  color: var(--accent);
+  opacity: 0.55;
+}
+
+/* ── 2. タイプコードをより洗練させる ──────────────────────── */
+/* 小さく上品に。タイプ名の引き立て役 */
+.rcode {
+  font-size: 11px !important;
+  letter-spacing: 0.4em !important;
+  color: var(--accent2) !important;
+  margin-bottom: 4px !important;
+  opacity: 0.8;
+}
+
+/* ── 3. タイプ名をわずかに大きく、余白を整える ────────────── */
+.rname {
+  font-size: 32px !important;
+  letter-spacing: -0.01em;
+  margin: 4px 0 10px !important;
+}
+
+/* ── 4. セクション見出しをコンパクトに整える ─────────────── */
+/* 本文より小さくして、見出しと本文の序列を明確にする */
+.sec h3 {
+  font-size: 11px !important;
+  letter-spacing: 0.14em !important;
+  text-transform: uppercase;
+  font-weight: 700 !important;
+  margin-bottom: 10px !important;
+  opacity: 0.85;
+}
+
+/* ── 5. セクションカードの内側パディングを統一 ────────────── */
+.sec {
+  padding: 20px 18px !important;
+  margin-bottom: 12px !important;
+}
+
+/* ── 6. intro文をより読みやすく ──────────────────────────── */
+.desc-intro {
+  font-size: 16px !important;
+  line-height: 1.9 !important;
+  color: var(--text) !important;
+  margin: 0 0 20px !important;
+}
+
+/* ── 7. あるある箇条書きの行間を広げる ────────────────────── */
+.desc-traits {
+  line-height: 2.4 !important;
+  font-size: 14px !important;
+}
+
+.desc-traits li {
+  margin-bottom: 4px !important;
+}
+
+/* ── 8. ヒーローカードのパディングを増やし、開封感を出す ──── */
+.hero {
+  padding: 32px 18px 28px !important;
+  margin-bottom: 22px !important;
+}
+
+/* ── 9. スマホ表示の相性セクション余白を統一 ─────────────── */
+@media (max-width: 420px) {
+  .match {
+    gap: 10px !important;
+  }
+  .match .sec {
+    margin-bottom: 0 !important;
+  }
+}
+
+/* ── 10. CTAエリアの上部マージンを確保 ────────────────────── */
+.cta {
+  margin-top: 32px !important;
+}
+
+/* ── 11. barsセクションの存在感を少し下げる ──────────────── */
+/* 「参考情報」として主役のキャッチコピーを引き立てる */
+.bars {
+  margin-bottom: 28px !important;
+  border-color: rgba(71, 49, 99, 0.5) !important;
+}
+
+/* ── 12. レアリティの font-size を整数に統一 ─────────────── */
+.rarity {
+  font-size: 13px !important;
+}
+
+/* ── 13. 結果ページのフェードインをなめらかに（占いカード開封感） */
+#result.active {
+  animation: result-reveal 0.5s cubic-bezier(0.16, 1, 0.3, 1) both !important;
+}
+
+@keyframes result-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

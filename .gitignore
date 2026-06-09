@@ -1,0 +1,9 @@
+# Secrets — Webhook URLなどを含む。絶対にコミットしない
+.env
+
+# Node
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
